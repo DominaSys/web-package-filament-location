@@ -17,7 +17,6 @@ foreach ([
     'Neighborhood' => Neighborhood::class,
     'Street' => Street::class,
     'HouseNumber' => HouseNumber::class,
-    'Number' => HouseNumber::class,
     'Complement' => Complement::class,
 ] as $alias => $class) {
     if (! class_exists($alias, false) && class_exists($class)) {

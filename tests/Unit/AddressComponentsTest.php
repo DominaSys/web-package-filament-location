@@ -4,7 +4,6 @@ use Dominasys\FilamentLocation\Forms\Components\Address\City;
 use Dominasys\FilamentLocation\Forms\Components\Address\Complement;
 use Dominasys\FilamentLocation\Forms\Components\Address\HouseNumber;
 use Dominasys\FilamentLocation\Forms\Components\Address\Neighborhood;
-use Dominasys\FilamentLocation\Forms\Components\Address\Number;
 use Dominasys\FilamentLocation\Forms\Components\Address\State;
 use Dominasys\FilamentLocation\Forms\Components\Address\Street;
 use Dominasys\FilamentLocation\Forms\Components\PostalCode;
@@ -22,7 +21,6 @@ it('creates the address field components', function () {
     expect(Neighborhood::make('neighborhood'))->toBeInstanceOf(TextInput::class);
     expect(Street::make('street'))->toBeInstanceOf(TextInput::class);
     expect(HouseNumber::make('house_number'))->toBeInstanceOf(TextInput::class);
-    expect(Number::make('number'))->toBeInstanceOf(TextInput::class);
     expect(Complement::make('complement'))->toBeInstanceOf(TextInput::class);
     expect(PostalCode::make('postal_code'))->toBeInstanceOf(TextInput::class);
 });
