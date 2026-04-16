@@ -1,10 +1,10 @@
 **/.DS_Store
 .idea
 .phpunit.result.cache
-.phpunit.cache
-bootstrap/cache
+.phpunit.cache/
+bootstrap/cache/
 .vscode
-build
+build/
 composer.lock
 coverage
 docs
@@ -12,4 +12,5 @@ node_modules
 phpunit.xml
 phpstan.neon
 testbench.yaml
+storage/logs/
 vendor
