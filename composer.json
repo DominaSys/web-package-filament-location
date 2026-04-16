@@ -55,10 +55,11 @@
         "post-autoload-dump": "@php ./vendor/bin/testbench package:discover --ansi",
         "refactor": "rector process",
         "lint": "pint",
-        "analyse": "phpstan analyse",
+        "analyse": "phpstan analyse --debug",
         "test": "pest --no-coverage",
         "test:coverage": "pest --coverage",
         "test:lint": "pint --test",
+        "sync:address-data": "php scripts/sync-address-data.php",
         "check": [
             "@refactor",
             "@lint",

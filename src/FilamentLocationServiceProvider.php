@@ -2,7 +2,10 @@
 
 namespace Dominasys\FilamentLocation;
 
+use Dominasys\FilamentLocation\Commands\SyncAddressDataCommand;
 use Dominasys\FilamentLocation\Contracts\AddressDataRepositoryContract;
+use Dominasys\FilamentLocation\Contracts\AddressDataSourceFactoryContract;
+use Dominasys\FilamentLocation\Services\AddressDataSourceFactory;
 use Dominasys\FilamentLocation\Services\JsonAddressDataRepository;
 use Dominasys\FilamentLocation\Testing\TestsFilamentLocation;
 use Filament\Support\Assets\AlpineComponent;
@@ -56,6 +59,7 @@ class FilamentLocationServiceProvider extends PackageServiceProvider
     public function packageRegistered(): void
     {
         $this->app->singleton(AddressDataRepositoryContract::class, JsonAddressDataRepository::class);
+        $this->app->singleton(AddressDataSourceFactoryContract::class, AddressDataSourceFactory::class);
     }
 
     public function packageBooted(): void
@@ -116,7 +120,9 @@ class FilamentLocationServiceProvider extends PackageServiceProvider
      */
     protected function getCommands(): array
     {
-        return [];
+        return [
+            SyncAddressDataCommand::class,
+        ];
     }
 
     /**

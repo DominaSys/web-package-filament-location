@@ -4,6 +4,8 @@ use Dominasys\FilamentLocation\Contracts\AddressDataRepositoryContract;
 use Dominasys\FilamentLocation\Services\AddressFieldOptionsFactory;
 use Dominasys\FilamentLocation\Services\JsonAddressDataRepository;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 it('loads brazilian states and cities from the json repository', function () {
     $repository = app(AddressDataRepositoryContract::class);
@@ -36,4 +38,41 @@ it('caches country data in memory and via cache store', function () {
 
     expect($repository->states('BR'))->not->toBeEmpty();
     expect($repository->states('BR'))->not->toBeEmpty();
+});
+
+it('normalizes rich datasets into select options', function () {
+    $directory = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'filament-location-repo-' . Str::uuid();
+    File::ensureDirectoryExists($directory);
+
+    File::put($directory . DIRECTORY_SEPARATOR . 'br.json', json_encode([
+        'country_code' => 'BR',
+        'source' => 'fake',
+        'states' => [
+            [
+                'value' => 'SP',
+                'label' => 'São Paulo',
+                'cities' => [
+                    [
+                        'value' => 'Campinas',
+                        'label' => 'Campinas',
+                    ],
+                ],
+            ],
+        ],
+    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+
+    config([
+        'location.address_data_path' => $directory,
+        'location.address_data_cache_enabled' => false,
+    ]);
+
+    expect(AddressFieldOptionsFactory::states('BR'))->toMatchArray([
+        'SP' => 'São Paulo',
+    ]);
+
+    expect(AddressFieldOptionsFactory::cities('BR', 'SP'))->toMatchArray([
+        'Campinas' => 'Campinas',
+    ]);
+
+    File::deleteDirectory($directory);
 });
