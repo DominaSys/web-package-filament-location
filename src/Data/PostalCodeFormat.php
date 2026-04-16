@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Dominasys\FilamentLocation\Data;
 
-final class PostalCodeFormat
+final readonly class PostalCodeFormat
 {
     public function __construct(
-        public readonly ?string $mask = null,
-        public readonly ?int $minLength = null,
-        public readonly ?int $maxLength = null,
+        public ?string $mask = null,
+        public ?int $minLength = null,
+        public ?int $maxLength = null,
     ) {}
 
     public static function brazilian(): self

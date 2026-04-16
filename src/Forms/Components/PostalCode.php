@@ -20,6 +20,7 @@ use Livewire\Component as LivewireComponent;
 
 class PostalCode extends TextInput
 {
+    public $ibgeCodeField;
     private string | BackedEnum $actionIcon = Heroicon::OutlinedMagnifyingGlass;
 
     private ActionPositionEnum $actionPosition = ActionPositionEnum::SUFFIX;
@@ -37,8 +38,6 @@ class PostalCode extends TextInput
     private string $stateCodeField = 'state_code';
 
     private string $stateField = 'state';
-
-    private string $cityCodeField = 'city_code';
 
     private string $cityField = 'city';
 
@@ -116,27 +115,23 @@ class PostalCode extends TextInput
         $this->required();
         $this->rules(fn (Get $get): array => $this->resolvePostalCodeFormat($get)->validationRules());
 
-        $this->prefixAction(function (): ?Action {
-            return ($this->actionPosition === ActionPositionEnum::PREFIX)
-                ? Action::make('prefixFindPostalCode')
-                    ->icon(fn () => $this->actionIcon)
-                    ->action(function (LivewireComponent $livewire, Component $component, Get $get, Set $set) {
-                        $livewire->validateOnly($component->getStatePath());
-                        $this->getPostalCode($livewire, $component, $get, $set);
-                    })
-                : null;
-        });
+        $this->prefixAction(fn(): ?Action => ($this->actionPosition === ActionPositionEnum::PREFIX)
+            ? Action::make('prefixFindPostalCode')
+                ->icon(fn (): string|\BackedEnum => $this->actionIcon)
+                ->action(function (LivewireComponent $livewire, Component $component, Get $get, Set $set): void {
+                    $livewire->validateOnly($component->getStatePath());
+                    $this->getPostalCode($livewire, $component, $get, $set);
+                })
+            : null);
 
-        $this->suffixAction(function (): ?Action {
-            return ($this->actionPosition === ActionPositionEnum::SUFFIX)
-                ? Action::make('prefixFindPostalCode')
-                    ->icon(fn () => $this->actionIcon)
-                    ->action(function (LivewireComponent $livewire, Component $component, Get $get, Set $set) {
-                        $livewire->validateOnly($component->getStatePath());
-                        $this->getPostalCode($livewire, $component, $get, $set);
-                    })
-                : null;
-        });
+        $this->suffixAction(fn(): ?Action => ($this->actionPosition === ActionPositionEnum::SUFFIX)
+            ? Action::make('prefixFindPostalCode')
+                ->icon(fn (): string|\BackedEnum => $this->actionIcon)
+                ->action(function (LivewireComponent $livewire, Component $component, Get $get, Set $set): void {
+                    $livewire->validateOnly($component->getStatePath());
+                    $this->getPostalCode($livewire, $component, $get, $set);
+                })
+            : null);
     }
 
     public function actionIcon(string | BackedEnum $icon): self

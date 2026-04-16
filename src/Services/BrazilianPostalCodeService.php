@@ -17,26 +17,26 @@ final class BrazilianPostalCodeService implements PostalCodeServiceContract
 
     public function lookup(string $postalCode): PostalCodeLookupResult
     {
-        $normalizedPostalCode = self::sanitizePostalCode($postalCode);
+        $normalizedPostalCode = $this->sanitizePostalCode($postalCode);
 
         if (strlen($normalizedPostalCode) !== 8) {
             return PostalCodeLookupResult::invalid(
                 postalCode: $normalizedPostalCode,
-                country: self::countryName(),
+                country: $this->countryName(),
                 countryCode: self::COUNTRY_CODE,
             );
         }
 
         foreach ([
-            self::awesomeApiPayload($normalizedPostalCode),
-            self::openCepPayload($normalizedPostalCode),
-            self::viaCepPayload($normalizedPostalCode),
-            self::brasilApiPayload($normalizedPostalCode),
+            $this->awesomeApiPayload($normalizedPostalCode),
+            $this->openCepPayload($normalizedPostalCode),
+            $this->viaCepPayload($normalizedPostalCode),
+            $this->brasilApiPayload($normalizedPostalCode),
         ] as $responseData) {
             if ($responseData !== null) {
                 return PostalCodeLookupResult::found(
                     postalCode: $normalizedPostalCode,
-                    country: self::countryName(),
+                    country: $this->countryName(),
                     countryCode: self::COUNTRY_CODE,
                     state: $responseData['state'],
                     stateCode: $responseData['state_code'],
@@ -52,14 +52,14 @@ final class BrazilianPostalCodeService implements PostalCodeServiceContract
 
         return PostalCodeLookupResult::notFound(
             postalCode: $normalizedPostalCode,
-            country: self::countryName(),
+            country: $this->countryName(),
             countryCode: self::COUNTRY_CODE,
         );
     }
 
-    private static function awesomeApiPayload(string $postalCode): ?array
+    private function awesomeApiPayload(string $postalCode): ?array
     {
-        return self::requestAndFormat(function (array $responseData): ?array {
+        return $this->requestAndFormat(function (array $responseData): ?array {
             if (Arr::get($responseData, 'code') === 'not_found') {
                 return null;
             }
@@ -79,13 +79,13 @@ final class BrazilianPostalCodeService implements PostalCodeServiceContract
                 'source' => 'awesomeapi',
             ];
 
-            return self::hasUsefulData($formattedData) ? $formattedData : null;
+            return $this->hasUsefulData($formattedData) ? $formattedData : null;
         }, "https://cep.awesomeapi.com.br/json/{$postalCode}");
     }
 
-    private static function openCepPayload(string $postalCode): ?array
+    private function openCepPayload(string $postalCode): ?array
     {
-        return self::requestAndFormat(function (array $responseData): ?array {
+        return $this->requestAndFormat(function (array $responseData): ?array {
             if (Arr::get($responseData, 'error') === true) {
                 return null;
             }
@@ -101,13 +101,13 @@ final class BrazilianPostalCodeService implements PostalCodeServiceContract
                 'source' => 'opencep',
             ];
 
-            return self::hasUsefulData($formattedData) ? $formattedData : null;
+            return $this->hasUsefulData($formattedData) ? $formattedData : null;
         }, "https://opencep.com/v1/{$postalCode}");
     }
 
-    private static function viaCepPayload(string $postalCode): ?array
+    private function viaCepPayload(string $postalCode): ?array
     {
-        return self::requestAndFormat(function (array $responseData): ?array {
+        return $this->requestAndFormat(function (array $responseData): ?array {
             if (Arr::get($responseData, 'erro') === 'true' || Arr::get($responseData, 'erro') === true) {
                 return null;
             }
@@ -123,13 +123,13 @@ final class BrazilianPostalCodeService implements PostalCodeServiceContract
                 'source' => 'viacep',
             ];
 
-            return self::hasUsefulData($formattedData) ? $formattedData : null;
+            return $this->hasUsefulData($formattedData) ? $formattedData : null;
         }, "https://viacep.com.br/ws/{$postalCode}/json/");
     }
 
-    private static function brasilApiPayload(string $postalCode): ?array
+    private function brasilApiPayload(string $postalCode): ?array
     {
-        return self::requestAndFormat(function (array $responseData): ?array {
+        return $this->requestAndFormat(function (array $responseData): ?array {
             if (Arr::has($responseData, 'errors')) {
                 return null;
             }
@@ -145,11 +145,11 @@ final class BrazilianPostalCodeService implements PostalCodeServiceContract
                 'source' => 'brasilapi',
             ];
 
-            return self::hasUsefulData($formattedData) ? $formattedData : null;
+            return $this->hasUsefulData($formattedData) ? $formattedData : null;
         }, "https://brasilapi.com.br/api/cep/v2/{$postalCode}");
     }
 
-    private static function requestAndFormat(callable $formatter, string $url): ?array
+    private function requestAndFormat(callable $formatter, string $url): ?array
     {
         try {
             $response = Http::get($url);
@@ -172,19 +172,19 @@ final class BrazilianPostalCodeService implements PostalCodeServiceContract
         }
     }
 
-    private static function hasUsefulData(array $responseData): bool
+    private function hasUsefulData(array $responseData): bool
     {
         unset($responseData['source']);
 
-        return count(array_filter($responseData, static fn ($value): bool => filled($value))) > 0;
+        return count(array_filter($responseData, filled(...))) > 0;
     }
 
-    private static function sanitizePostalCode(string $postalCode): string
+    private function sanitizePostalCode(string $postalCode): string
     {
         return preg_replace('/\D+/', '', $postalCode) ?? '';
     }
 
-    private static function countryName(): string
+    private function countryName(): string
     {
         return Translation::countryName(self::COUNTRY_CODE) ?? 'Brazil';
     }

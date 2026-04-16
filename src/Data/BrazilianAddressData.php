@@ -87,6 +87,6 @@ final class BrazilianAddressData
         $cities = array_values(array_unique($cities));
         sort($cities);
 
-        return array_combine($cities, $cities) ?: [];
+        return array_combine($cities, $cities);
     }
 }

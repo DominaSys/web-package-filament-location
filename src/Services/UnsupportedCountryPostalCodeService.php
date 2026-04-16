@@ -7,10 +7,10 @@ namespace Dominasys\FilamentLocation\Services;
 use Dominasys\FilamentLocation\Contracts\PostalCodeServiceContract;
 use Dominasys\FilamentLocation\Data\PostalCodeLookupResult;
 
-final class UnsupportedCountryPostalCodeService implements PostalCodeServiceContract
+final readonly class UnsupportedCountryPostalCodeService implements PostalCodeServiceContract
 {
     public function __construct(
-        private readonly ?string $countryCode = null,
+        private ?string $countryCode = null,
     ) {}
 
     public function lookup(string $postalCode): PostalCodeLookupResult
