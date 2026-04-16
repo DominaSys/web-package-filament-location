@@ -31,11 +31,11 @@ final readonly class PostalCodeFormat
         $rules = [];
 
         if (filled($this->minLength)) {
-            $rules[] = "min:{$this->minLength}";
+            $rules[] = 'min:' . $this->minLength;
         }
 
         if (filled($this->maxLength)) {
-            $rules[] = "max:{$this->maxLength}";
+            $rules[] = 'max:' . $this->maxLength;
         }
 
         return $rules;

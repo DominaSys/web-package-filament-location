@@ -34,7 +34,7 @@ class FilamentLocationServiceProvider extends PackageServiceProvider
 
         $configFileName = $package->shortName();
 
-        if (file_exists($package->basePath("/../config/{$configFileName}.php"))) {
+        if (file_exists($package->basePath(sprintf('/../config/%s.php', $configFileName)))) {
             $package->hasConfigFile();
         }
 

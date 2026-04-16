@@ -80,7 +80,7 @@ final class BrazilianPostalCodeService implements PostalCodeServiceContract
             ];
 
             return $this->hasUsefulData($formattedData) ? $formattedData : null;
-        }, "https://cep.awesomeapi.com.br/json/{$postalCode}");
+        }, 'https://cep.awesomeapi.com.br/json/' . $postalCode);
     }
 
     private function openCepPayload(string $postalCode): ?array
@@ -102,7 +102,7 @@ final class BrazilianPostalCodeService implements PostalCodeServiceContract
             ];
 
             return $this->hasUsefulData($formattedData) ? $formattedData : null;
-        }, "https://opencep.com/v1/{$postalCode}");
+        }, 'https://opencep.com/v1/' . $postalCode);
     }
 
     private function viaCepPayload(string $postalCode): ?array
@@ -124,7 +124,7 @@ final class BrazilianPostalCodeService implements PostalCodeServiceContract
             ];
 
             return $this->hasUsefulData($formattedData) ? $formattedData : null;
-        }, "https://viacep.com.br/ws/{$postalCode}/json/");
+        }, sprintf('https://viacep.com.br/ws/%s/json/', $postalCode));
     }
 
     private function brasilApiPayload(string $postalCode): ?array
@@ -146,7 +146,7 @@ final class BrazilianPostalCodeService implements PostalCodeServiceContract
             ];
 
             return $this->hasUsefulData($formattedData) ? $formattedData : null;
-        }, "https://brasilapi.com.br/api/cep/v2/{$postalCode}");
+        }, 'https://brasilapi.com.br/api/cep/v2/' . $postalCode);
     }
 
     private function requestAndFormat(callable $formatter, string $url): ?array
@@ -176,7 +176,7 @@ final class BrazilianPostalCodeService implements PostalCodeServiceContract
     {
         unset($responseData['source']);
 
-        return count(array_filter($responseData, filled(...))) > 0;
+        return array_filter($responseData, filled(...)) !== [];
     }
 
     private function sanitizePostalCode(string $postalCode): string

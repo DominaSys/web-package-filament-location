@@ -31,13 +31,13 @@ final class Translation
             return null;
         }
 
-        $translation = self::get("countries.{$countryCode}.name");
+        $translation = self::get(sprintf('countries.%s.name', $countryCode));
 
         return str_contains($translation, 'countries.') ? null : $translation;
     }
 
     private static function packageKey(string $key): string
     {
-        return "filament-location::location.{$key}";
+        return 'filament-location::location.' . $key;
     }
 }
