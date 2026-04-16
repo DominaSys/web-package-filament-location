@@ -4,19 +4,21 @@ declare(strict_types=1);
 
 namespace Dominasys\FilamentLocation\Services;
 
-use Dominasys\FilamentLocation\Data\BrazilianAddressData;
+use Dominasys\FilamentLocation\Contracts\AddressDataRepositoryContract;
 
 final class AddressFieldOptionsFactory
 {
+    private static function repository(): AddressDataRepositoryContract
+    {
+        return app(AddressDataRepositoryContract::class);
+    }
+
     /**
      * @return array<string, string>
      */
     public static function states(?string $countryCode = null): array
     {
-        return match (self::normalizeCountryCode($countryCode)) {
-            '', 'BR' => BrazilianAddressData::states(),
-            default => [],
-        };
+        return self::repository()->states($countryCode);
     }
 
     /**
@@ -24,14 +26,6 @@ final class AddressFieldOptionsFactory
      */
     public static function cities(?string $countryCode = null, ?string $stateCode = null): array
     {
-        return match (self::normalizeCountryCode($countryCode)) {
-            '', 'BR' => BrazilianAddressData::cities($stateCode),
-            default => [],
-        };
-    }
-
-    private static function normalizeCountryCode(?string $countryCode): string
-    {
-        return strtoupper(trim((string) $countryCode));
+        return self::repository()->cities($countryCode, $stateCode);
     }
 }

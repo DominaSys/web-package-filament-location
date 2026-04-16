@@ -2,6 +2,8 @@
 
 namespace Dominasys\FilamentLocation;
 
+use Dominasys\FilamentLocation\Contracts\AddressDataRepositoryContract;
+use Dominasys\FilamentLocation\Services\JsonAddressDataRepository;
 use Dominasys\FilamentLocation\Testing\TestsFilamentLocation;
 use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Assets\Asset;
@@ -51,7 +53,10 @@ class FilamentLocationServiceProvider extends PackageServiceProvider
         }
     }
 
-    public function packageRegistered(): void {}
+    public function packageRegistered(): void
+    {
+        $this->app->singleton(AddressDataRepositoryContract::class, JsonAddressDataRepository::class);
+    }
 
     public function packageBooted(): void
     {
