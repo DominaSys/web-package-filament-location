@@ -1,6 +1,8 @@
 <?php
 
 use Dominasys\FilamentLocation\Enums\ActionPositionEnum;
+use Dominasys\FilamentLocation\Data\PostalCodeFormat;
+use Dominasys\FilamentLocation\Services\PostalCodeFormatFactory;
 use Dominasys\FilamentLocation\Services\PostalCodeServiceFactory;
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
@@ -17,11 +19,11 @@ class PostalCode extends TextInput
 
     private ActionPositionEnum $actionPosition = ActionPositionEnum::SUFFIX;
 
-    private string $postalCodeMask = '99999-999';
+    private ?string $postalCodeMask = null;
 
-    private int $postalCodeMinLength = 9;
+    private ?int $postalCodeMinLength = null;
 
-    private int $postalCodeMaxLength = 9;
+    private ?int $postalCodeMaxLength = null;
 
     private string $countryCodeField = 'country_code';
 
@@ -102,11 +104,11 @@ class PostalCode extends TextInput
     {
         parent::setUp();
 
-        $this->mask($this->postalCodeMask);
-        $this->minLength($this->postalCodeMinLength);
-        $this->maxLength($this->postalCodeMaxLength);
+        $this->mask(fn (Get $get): ?string => $this->resolvePostalCodeFormat($get)->mask);
+        $this->minLength(fn (Get $get): ?int => $this->resolvePostalCodeFormat($get)->minLength);
+        $this->maxLength(fn (Get $get): ?int => $this->resolvePostalCodeFormat($get)->maxLength);
         $this->required();
-        $this->rules(['required', "min:{$this->postalCodeMinLength}", "max:{$this->postalCodeMaxLength}"]);
+        $this->rules(fn (Get $get): array => $this->resolvePostalCodeFormat($get)->validationRules());
 
         $this->prefixAction(function (): ?Action {
             return ($this->actionPosition === ActionPositionEnum::PREFIX)
@@ -229,5 +231,17 @@ class PostalCode extends TextInput
         $this->nextFocusField = $targetField;
 
         return $this;
+    }
+
+    private function resolvePostalCodeFormat(Get $get): PostalCodeFormat
+    {
+        $countryCode = $get($this->countryCodeField) ?: 'BR';
+        $defaultFormat = PostalCodeFormatFactory::make($countryCode);
+
+        return new PostalCodeFormat(
+            mask: $this->postalCodeMask ?? $defaultFormat->mask,
+            minLength: $this->postalCodeMinLength ?? $defaultFormat->minLength,
+            maxLength: $this->postalCodeMaxLength ?? $defaultFormat->maxLength,
+        );
     }
 }
