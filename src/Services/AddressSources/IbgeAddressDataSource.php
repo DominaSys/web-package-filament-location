@@ -36,59 +36,52 @@ final class IbgeAddressDataSource implements AddressDataSourceContract
         $normalizedStates = [];
 
         foreach ($states as $state) {
-            $stateIbgeId = (int) ($state['id'] ?? 0);
+            $stateSourceId = $this->stringifyIdentifier($state['id'] ?? null);
             $stateCode = strtoupper(trim((string) ($state['sigla'] ?? '')));
             $stateName = trim((string) ($state['nome'] ?? ''));
-            if ($stateIbgeId === 0) {
+            if ($stateSourceId === '') {
                 continue;
             }
-
             if ($stateCode === '') {
                 continue;
             }
-
             if ($stateName === '') {
                 continue;
             }
 
-            $cities = $this->requestJson(sprintf('/localidades/estados/%d/municipios', $stateIbgeId), ['orderBy' => 'nome']);
-
+            $cities = $this->requestJson(sprintf('/localidades/estados/%s/municipios', $stateSourceId), ['orderBy' => 'nome']);
             $normalizedCities = [];
 
             foreach ($cities as $city) {
+                $citySourceId = $this->stringifyIdentifier($city['id'] ?? null);
                 $cityName = trim((string) ($city['nome'] ?? ''));
-                $cityIbgeId = (int) ($city['id'] ?? 0);
+                if ($citySourceId === '') {
+                    continue;
+                }
                 if ($cityName === '') {
                     continue;
                 }
 
-                if ($cityIbgeId === 0) {
-                    continue;
-                }
-
                 $normalizedCities[] = [
-                    'value' => $cityName,
+                    'code' => $citySourceId,
                     'label' => $cityName,
-                    'meta' => [
-                        'ibge_id' => $cityIbgeId,
-                        'state_ibge_id' => $stateIbgeId,
+                    'identifiers' => [
+                        'source' => $this->sourceKey(),
+                        'source_id' => $citySourceId,
+                        'parent_code' => $stateCode,
                     ],
                 ];
             }
 
-            $region = is_array($state['regiao'] ?? null) ? $state['regiao'] : [];
-
             $normalizedStates[] = [
-                'value' => $stateCode,
+                'code' => $stateCode,
                 'label' => $stateName,
-                'meta' => [
-                    'ibge_id' => $stateIbgeId,
-                    'region' => [
-                        'ibge_id' => (int) ($region['id'] ?? 0),
-                        'code' => strtoupper(trim((string) ($region['sigla'] ?? ''))),
-                        'name' => trim((string) ($region['nome'] ?? '')),
-                    ],
+                'identifiers' => [
+                    'source' => $this->sourceKey(),
+                    'source_id' => $stateSourceId,
+                    'source_code' => $stateCode,
                 ],
+                'administrative_divisions' => $this->administrativeDivisions($state['regiao'] ?? null),
                 'cities' => $normalizedCities,
             ];
         }
@@ -99,6 +92,50 @@ final class IbgeAddressDataSource implements AddressDataSourceContract
             'source' => $this->sourceKey(),
             'states' => $normalizedStates,
         ];
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function administrativeDivisions(mixed $region): array
+    {
+        if (! is_array($region)) {
+            return [];
+        }
+
+        $regionSourceId = $this->stringifyIdentifier($region['id'] ?? null);
+        $regionCode = strtoupper(trim((string) ($region['sigla'] ?? '')));
+        $regionName = trim((string) ($region['nome'] ?? ''));
+
+        if ($regionSourceId === '' || $regionCode === '' || $regionName === '') {
+            return [];
+        }
+
+        return [
+            [
+                'type' => 'region',
+                'code' => $regionCode,
+                'label' => $regionName,
+                'identifiers' => [
+                    'source' => $this->sourceKey(),
+                    'source_id' => $regionSourceId,
+                    'source_code' => $regionCode,
+                ],
+            ],
+        ];
+    }
+
+    private function stringifyIdentifier(mixed $value): string
+    {
+        if (is_int($value) || is_float($value)) {
+            return (string) $value;
+        }
+
+        if (! is_string($value)) {
+            return '';
+        }
+
+        return trim($value);
     }
 
     /**

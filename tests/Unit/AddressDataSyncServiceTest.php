@@ -53,7 +53,10 @@ it('syncs and writes a rich dataset file', function () {
             'country_code' => 'BR',
             'source' => 'fake',
         ])
-        ->and($data['states'][0]['cities'][0]['value'])->toBe('Campinas');
+        ->and($data['states'][0]['code'])->toBe('SP')
+        ->and($data['states'][0]['identifiers']['source_id'])->toBe('35')
+        ->and($data['states'][0]['cities'][0]['code'])->toBe('3509502')
+        ->and(File::get($directory . DIRECTORY_SEPARATOR . 'br.json'))->not->toContain("\n");
 
     File::deleteDirectory($directory);
 });
@@ -86,7 +89,7 @@ it('keeps the previous dataset when sync fails', function () {
         'country_code' => 'BR',
         'source' => 'legacy',
         'states' => [],
-    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+    ]));
 
     config([
         'location.address_data_path' => $directory,

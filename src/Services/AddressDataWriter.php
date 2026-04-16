@@ -26,7 +26,7 @@ final readonly class AddressDataWriter
 
         $json = json_encode(
             $dataset,
-            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
         );
 
         if ($json === false) {
@@ -39,7 +39,7 @@ final readonly class AddressDataWriter
             throw new RuntimeException('Unable to create temporary file for address dataset.');
         }
 
-        if (file_put_contents($tempPath, $json . PHP_EOL) === false) {
+        if (file_put_contents($tempPath, $json) === false) {
             @unlink($tempPath);
 
             throw new RuntimeException('Unable to write temporary address dataset file.');

@@ -42,6 +42,8 @@ class PostalCode extends TextInput
 
     private string $cityField = 'city';
 
+    private string $cityCodeField = 'city_code';
+
     private string $neighborhoodField = 'neighborhood';
 
     private string $streetField = 'street';
@@ -75,6 +77,10 @@ class PostalCode extends TextInput
 
         if (! blank($postalCodeResponse->city)) {
             $set($this->cityField, $postalCodeResponse->city);
+        }
+
+        if (! blank($postalCodeResponse->cityCode)) {
+            $set($this->cityCodeField, $postalCodeResponse->cityCode);
         }
 
         if (! blank($postalCodeResponse->state)) {
@@ -173,6 +179,13 @@ class PostalCode extends TextInput
     public function bindCityField(string $cityField): self
     {
         $this->cityField = $cityField;
+
+        return $this;
+    }
+
+    public function bindCityCodeField(string $cityCodeField): self
+    {
+        $this->cityCodeField = $cityCodeField;
 
         return $this;
     }

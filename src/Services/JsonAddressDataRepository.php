@@ -42,21 +42,20 @@ final class JsonAddressDataRepository implements AddressDataRepositoryContract
                 continue;
             }
 
-            $value = $this->extractValue($state, ['value', 'code', 'acronym', 'sigla']);
-            if ($value === null && is_string($key) && trim($key) !== '') {
-                $value = trim($key);
+            $code = $this->extractValue($state, ['code', 'value', 'acronym', 'sigla', 'identifiers.source_code', 'identifiers.source_id', 'meta.ibge_id']);
+            if ($code === null && is_string($key) && trim($key) !== '') {
+                $code = trim($key);
             }
 
-            $label = $this->extractValue($state, ['label', 'name', 'nome']) ?? $value;
-            if ($value === null) {
+            $label = $this->extractValue($state, ['label', 'name', 'nome']) ?? $code;
+            if ($code === null) {
                 continue;
             }
-
             if ($label === null) {
                 continue;
             }
 
-            $normalizedStates[$value] = $label;
+            $normalizedStates[$code] = $label;
         }
 
         return $normalizedStates;
@@ -85,21 +84,20 @@ final class JsonAddressDataRepository implements AddressDataRepositoryContract
                 continue;
             }
 
-            $value = $this->extractValue($city, ['value', 'code', 'name', 'nome']);
-            if ($value === null && is_string($key) && trim($key) !== '') {
-                $value = trim($key);
+            $code = $this->extractValue($city, ['code', 'value', 'identifiers.source_id', 'identifiers.source_code', 'meta.ibge_id']);
+            if ($code === null && is_string($key) && trim($key) !== '') {
+                $code = trim($key);
             }
 
-            $label = $this->extractValue($city, ['label', 'name', 'nome']) ?? $value;
-            if ($value === null) {
+            $label = $this->extractValue($city, ['label', 'name', 'nome']) ?? $code;
+            if ($code === null) {
                 continue;
             }
-
             if ($label === null) {
                 continue;
             }
 
-            $normalizedCities[$value] = $label;
+            $normalizedCities[$code] = $label;
         }
 
         return $normalizedCities;
@@ -189,16 +187,14 @@ final class JsonAddressDataRepository implements AddressDataRepositoryContract
                     continue;
                 }
 
-                $value = $this->extractValue($state, ['value', 'code', 'acronym', 'sigla']);
-                if ($value === null && is_string($key) && trim($key) !== '') {
-                    $value = trim($key);
+                $code = $this->extractValue($state, ['code', 'value', 'acronym', 'sigla', 'identifiers.source_code', 'identifiers.source_id', 'meta.ibge_id']);
+                if ($code === null && is_string($key) && trim($key) !== '') {
+                    $code = trim($key);
                 }
-
-                if ($value === null) {
+                if ($code === null) {
                     continue;
                 }
-
-                if (strtoupper($value) !== $stateCode) {
+                if (strtoupper((string) $code) !== $stateCode) {
                     continue;
                 }
 
@@ -227,12 +223,12 @@ final class JsonAddressDataRepository implements AddressDataRepositoryContract
 
     /**
      * @param  array<string, mixed>  $payload
-     * @param  array<int, string>  $keys
+     * @param  array<int, string>  $paths
      */
-    private function extractValue(array $payload, array $keys): ?string
+    private function extractValue(array $payload, array $paths): ?string
     {
-        foreach ($keys as $key) {
-            $value = $payload[$key] ?? null;
+        foreach ($paths as $path) {
+            $value = Arr::get($payload, $path);
 
             if (is_string($value) && trim($value) !== '') {
                 return trim($value);

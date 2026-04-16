@@ -74,7 +74,7 @@ final class BrazilianPostalCodeService implements PostalCodeServiceContract
                 'city' => Arr::get($responseData, 'city'),
                 'state' => null,
                 'state_code' => Arr::get($responseData, 'state'),
-                'city_code' => null,
+                'city_code' => $this->stringifyIdentifier(Arr::get($responseData, 'city_ibge')),
                 'ibge_code' => Arr::get($responseData, 'city_ibge'),
                 'source' => 'awesomeapi',
             ];
@@ -96,7 +96,7 @@ final class BrazilianPostalCodeService implements PostalCodeServiceContract
                 'city' => Arr::get($responseData, 'localidade'),
                 'state' => null,
                 'state_code' => Arr::get($responseData, 'uf'),
-                'city_code' => null,
+                'city_code' => $this->stringifyIdentifier(Arr::get($responseData, 'ibge')),
                 'ibge_code' => Arr::get($responseData, 'ibge'),
                 'source' => 'opencep',
             ];
@@ -118,7 +118,7 @@ final class BrazilianPostalCodeService implements PostalCodeServiceContract
                 'city' => Arr::get($responseData, 'localidade'),
                 'state' => Arr::get($responseData, 'estado'),
                 'state_code' => Arr::get($responseData, 'uf'),
-                'city_code' => null,
+                'city_code' => $this->stringifyIdentifier(Arr::get($responseData, 'ibge')),
                 'ibge_code' => Arr::get($responseData, 'ibge'),
                 'source' => 'viacep',
             ];
@@ -140,7 +140,7 @@ final class BrazilianPostalCodeService implements PostalCodeServiceContract
                 'city' => Arr::get($responseData, 'city'),
                 'state' => null,
                 'state_code' => Arr::get($responseData, 'state'),
-                'city_code' => null,
+                'city_code' => $this->stringifyIdentifier(Arr::get($responseData, 'ibge')),
                 'ibge_code' => Arr::get($responseData, 'ibge'),
                 'source' => 'brasilapi',
             ];
@@ -187,5 +187,20 @@ final class BrazilianPostalCodeService implements PostalCodeServiceContract
     private function countryName(): string
     {
         return Translation::countryName(self::COUNTRY_CODE) ?? 'Brazil';
+    }
+
+    private function stringifyIdentifier(mixed $value): ?string
+    {
+        if (is_int($value) || is_float($value)) {
+            return (string) $value;
+        }
+
+        if (! is_string($value)) {
+            return null;
+        }
+
+        $normalized = trim($value);
+
+        return $normalized !== '' ? $normalized : null;
     }
 }

@@ -44,12 +44,20 @@ it('normalizes ibge payloads into the rich dataset format', function () {
         ->toHaveCount(1)
         ->and($dataset['states'][0])
         ->toMatchArray([
-            'value' => 'SP',
+            'code' => 'SP',
             'label' => 'São Paulo',
+        ])
+        ->and($dataset['states'][0]['identifiers']['source_id'])->toBe('35')
+        ->and($dataset['states'][0]['administrative_divisions'][0])
+        ->toMatchArray([
+            'type' => 'region',
+            'code' => 'SE',
+            'label' => 'Sudeste',
         ])
         ->and($dataset['states'][0]['cities'][0])
         ->toMatchArray([
-            'value' => 'Campinas',
+            'code' => '3509502',
             'label' => 'Campinas',
-        ]);
+        ])
+        ->and($dataset['states'][0]['cities'][0]['identifiers']['source_id'])->toBe('3509502');
 });

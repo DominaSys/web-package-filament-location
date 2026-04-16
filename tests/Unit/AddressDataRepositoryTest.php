@@ -17,9 +17,9 @@ it('loads brazilian states and cities from the json repository', function () {
         ->toBe('São Paulo');
 
     expect($repository->cities('BR', 'SP'))
-        ->toHaveKey('Campinas')
-        ->and($repository->cities('BR', 'SP')['São Paulo'])
-        ->toBe('São Paulo');
+        ->toHaveKey('3509502')
+        ->and($repository->cities('BR', 'SP')['3509502'])
+        ->toBe('Campinas');
 });
 
 it('returns empty options for unsupported countries', function () {
@@ -49,12 +49,22 @@ it('normalizes rich datasets into select options', function () {
         'source' => 'fake',
         'states' => [
             [
-                'value' => 'SP',
+                'code' => 'SP',
                 'label' => 'São Paulo',
+                'identifiers' => [
+                    'source' => 'fake',
+                    'source_id' => '35',
+                    'source_code' => 'SP',
+                ],
                 'cities' => [
                     [
-                        'value' => 'Campinas',
+                        'code' => '3509502',
                         'label' => 'Campinas',
+                        'identifiers' => [
+                            'source' => 'fake',
+                            'source_id' => '3509502',
+                            'parent_code' => 'SP',
+                        ],
                     ],
                 ],
             ],
@@ -71,7 +81,7 @@ it('normalizes rich datasets into select options', function () {
     ]);
 
     expect(AddressFieldOptionsFactory::cities('BR', 'SP'))->toMatchArray([
-        'Campinas' => 'Campinas',
+        '3509502' => 'Campinas',
     ]);
 
     File::deleteDirectory($directory);

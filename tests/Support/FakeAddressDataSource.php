@@ -29,22 +29,33 @@ final class FakeAddressDataSource implements AddressDataSourceContract
             'source' => $this->sourceKey(),
             'states' => [
                 [
-                    'value' => 'SP',
+                    'code' => 'SP',
                     'label' => 'São Paulo',
-                    'meta' => [
-                        'ibge_id' => 35,
-                        'region' => [
-                            'ibge_id' => 3,
+                    'identifiers' => [
+                        'source' => $this->sourceKey(),
+                        'source_id' => '35',
+                        'source_code' => 'SP',
+                    ],
+                    'administrative_divisions' => [
+                        [
+                            'type' => 'region',
                             'code' => 'SE',
-                            'name' => 'Sudeste',
+                            'label' => 'Sudeste',
+                            'identifiers' => [
+                                'source' => $this->sourceKey(),
+                                'source_id' => '3',
+                                'source_code' => 'SE',
+                            ],
                         ],
                     ],
                     'cities' => [
                         [
-                            'value' => 'Campinas',
+                            'code' => '3509502',
                             'label' => 'Campinas',
-                            'meta' => [
-                                'ibge_id' => 3509502,
+                            'identifiers' => [
+                                'source' => $this->sourceKey(),
+                                'source_id' => '3509502',
+                                'parent_code' => 'SP',
                             ],
                         ],
                     ],
