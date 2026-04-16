@@ -1,5 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
+namespace Dominasys\FilamentLocation\Forms\Components;
+
+use BackedEnum;
 use Dominasys\FilamentLocation\Data\PostalCodeFormat;
 use Dominasys\FilamentLocation\Enums\ActionPositionEnum;
 use Dominasys\FilamentLocation\Services\PostalCodeFormatFactory;
@@ -96,13 +101,15 @@ class PostalCode extends TextInput
             $nextFocusTargetField = str_replace($component->statePath, $this->nextFocusField, $component->getKey());
             $livewire->js("document.getElementById('{$nextFocusTargetField}').focus()");
         }
-
     }
 
     protected function setUp(): void
     {
         parent::setUp();
 
+        $this->label(__('filament-location::location.fields.postal_code.label'));
+        $this->placeholder(__('filament-location::location.fields.postal_code.placeholder'));
+        $this->autocomplete('postal-code');
         $this->mask(fn (Get $get): ?string => $this->resolvePostalCodeFormat($get)->mask);
         $this->minLength(fn (Get $get): ?int => $this->resolvePostalCodeFormat($get)->minLength);
         $this->maxLength(fn (Get $get): ?int => $this->resolvePostalCodeFormat($get)->maxLength);
@@ -130,7 +137,6 @@ class PostalCode extends TextInput
                     })
                 : null;
         });
-
     }
 
     public function actionIcon(string | BackedEnum $icon): self

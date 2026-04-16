@@ -41,7 +41,10 @@
     "autoload": {
         "psr-4": {
             "Dominasys\\FilamentLocation\\": "src/"
-        }
+        },
+        "files": [
+            "src/Support/ComponentAliases.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
