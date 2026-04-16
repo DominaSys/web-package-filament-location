@@ -2,7 +2,6 @@
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/dominasys/filament-location.svg?style=flat-square)](https://packagist.org/packages/dominasys/filament-location)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/dominasys/filament-location/run-tests.yml?branch=5.x&label=tests&style=flat-square)](https://github.com/dominasys/web-package-filament-location/actions?query=workflow%3Arun-tests+branch%3A5.x)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/dominasys/filament-location/fix-php-code-style-issues.yml?branch=5.x&label=code%20style&style=flat-square)](https://github.com/dominasys/web-package-filament-location/actions?query=workflow%3A%22Fix+PHP+code+styling%22+branch%3A5.x)
 [![Total Downloads](https://img.shields.io/packagist/dt/dominasys/filament-location.svg?style=flat-square)](https://packagist.org/packages/dominasys/filament-location)
 
 `filament-location` provides reusable Filament components for address forms, postal code lookup, and country-aware location fields.
