@@ -2,26 +2,32 @@
 
 All notable changes to `filament-location` will be documented in this file.
 
-## v5.1.0 - 2026-04-16
+## Unreleased
 
-### v5.1.0
-
-A feature-focused minor release for the `filament-location` 5.x line.
-
-#### Highlights
+### Added
 
 - Added an explicit `HouseNumber` component for address forms
 - Kept `Number` as a backward-compatible alias for existing integrations
 - Improved `state` and `city` search with accent-insensitive matching and typo tolerance in the frontend
 - Updated GitHub workflows to work with the repository's `5.x` branch
+
+### Changed
+
 - Continued improvements to the canonical, country-aware address dataset and sync pipeline
 
-#### Note
+## v5.0.0 - 2026-04-16
 
-This release extends the public API in a backward-compatible way, so it is released as a minor version.
+### Added
 
-**Full Changelog**: https://github.com/DominaSys/web-package-filament-location/compare/v5.0.0...v5.1.0
+- Canonical, extensible address dataset structure by country
+- `postal code` support with per-country factory resolution and standardized lookup results
+- Reusable components for `postal code`, `state`, `city`, `neighborhood`, `street`, `number`, and `complement`
+- Frontend-only search for `state` and `city`, with no request delay
+- Search with accent-insensitive matching and light typo tolerance
+- Minified Brazil dataset, ready for multi-country expansion
+- Internal dataset synchronization from external sources, starting with IBGE
+- Localization in `pt_BR` and `en`
 
-## 1.0.0 - 202X-XX-XX
+### Changed
 
-- initial release
+- This release marks the first major 5.x version, focused on scalability, standardization, and future multi-country extensibility.
