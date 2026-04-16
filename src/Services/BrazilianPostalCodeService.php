@@ -6,9 +6,9 @@ namespace Dominasys\FilamentLocation\Services;
 
 use Dominasys\FilamentLocation\Contracts\PostalCodeServiceContract;
 use Dominasys\FilamentLocation\Data\PostalCodeLookupResult;
+use Dominasys\FilamentLocation\Support\Translation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
-use Dominasys\FilamentLocation\Support\Translation;
 use Throwable;
 
 final class BrazilianPostalCodeService implements PostalCodeServiceContract
