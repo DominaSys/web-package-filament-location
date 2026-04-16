@@ -70,15 +70,6 @@ class FilamentLocationServiceProvider extends PackageServiceProvider
         // Icon Registration
         FilamentIcon::register($this->getIcons());
 
-        // Handle Stubs
-        if (app()->runningInConsole()) {
-            foreach (app(Filesystem::class)->files(__DIR__ . '/../stubs/') as $file) {
-                $this->publishes([
-                    $file->getRealPath() => base_path("stubs/filament-location/{$file->getFilename()}"),
-                ], 'filament-location-stubs');
-            }
-        }
-
         // Testing
         Testable::mixin(new TestsFilamentLocation);
     }
@@ -112,6 +103,14 @@ class FilamentLocationServiceProvider extends PackageServiceProvider
      * @return array<string>
      */
     protected function getRoutes(): array
+    {
+        return [];
+    }
+
+    /**
+     * @return array<string>
+     */
+    protected function getCommands(): array
     {
         return [];
     }
