@@ -53,10 +53,18 @@
     },
     "scripts": {
         "post-autoload-dump": "@php ./vendor/bin/testbench package:discover --ansi",
-        "analyse": "phpstan analyse",
+        "refactor": "rector process",
         "lint": "pint",
-        "test": "pest",
-        "test:lint": "pint --test"
+        "analyse": "phpstan analyse",
+        "test": "pest --no-coverage",
+        "test:coverage": "pest --coverage",
+        "test:lint": "pint --test",
+        "check": [
+            "@refactor",
+            "@lint",
+            "@analyse",
+            "@test"
+        ]
     },
     "extra": {
         "laravel": {
