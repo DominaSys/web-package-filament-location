@@ -51,6 +51,7 @@ final class JsonAddressDataRepository implements AddressDataRepositoryContract
             if ($code === null) {
                 continue;
             }
+
             if ($label === null) {
                 continue;
             }
@@ -93,6 +94,7 @@ final class JsonAddressDataRepository implements AddressDataRepositoryContract
             if ($code === null) {
                 continue;
             }
+
             if ($label === null) {
                 continue;
             }
@@ -191,10 +193,12 @@ final class JsonAddressDataRepository implements AddressDataRepositoryContract
                 if ($code === null && is_string($key) && trim($key) !== '') {
                     $code = trim($key);
                 }
+
                 if ($code === null) {
                     continue;
                 }
-                if (strtoupper((string) $code) !== $stateCode) {
+
+                if (strtoupper($code) !== $stateCode) {
                     continue;
                 }
 

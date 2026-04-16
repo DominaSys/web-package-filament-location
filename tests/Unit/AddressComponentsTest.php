@@ -11,8 +11,12 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 
 it('creates the address field components', function () {
-    expect(State::make('state'))->toBeInstanceOf(Select::class);
-    expect(City::make('city'))->toBeInstanceOf(Select::class);
+    expect(State::make('state'))->toBeInstanceOf(Select::class)
+        ->and(State::make('state')->getExtraAlpineAttributeBag()->getAttributes())
+        ->toHaveKey('x-init');
+    expect(City::make('city'))->toBeInstanceOf(Select::class)
+        ->and(City::make('city')->getExtraAlpineAttributeBag()->getAttributes())
+        ->toHaveKey('x-init');
     expect(Neighborhood::make('neighborhood'))->toBeInstanceOf(TextInput::class);
     expect(Street::make('street'))->toBeInstanceOf(TextInput::class);
     expect(Number::make('number'))->toBeInstanceOf(TextInput::class);

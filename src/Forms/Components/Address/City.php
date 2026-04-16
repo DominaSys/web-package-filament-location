@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Dominasys\FilamentLocation\Forms\Components\Address;
 
 use Dominasys\FilamentLocation\Services\AddressFieldOptionsFactory;
+use Dominasys\FilamentLocation\Support\AccentInsensitiveSelectSearch;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Utilities\Get;
 
@@ -43,6 +44,9 @@ class City extends Select
             $this->resolveCountryCode($get),
             $this->resolveStateCode($get),
         ));
+        $this->extraAlpineAttributes([
+            'x-init' => AccentInsensitiveSelectSearch::xInit(),
+        ]);
     }
 
     private function resolveCountryCode(Get $get): string

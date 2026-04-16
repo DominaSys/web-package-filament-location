@@ -42,9 +42,11 @@ final class IbgeAddressDataSource implements AddressDataSourceContract
             if ($stateSourceId === '') {
                 continue;
             }
+
             if ($stateCode === '') {
                 continue;
             }
+
             if ($stateName === '') {
                 continue;
             }
@@ -58,6 +60,7 @@ final class IbgeAddressDataSource implements AddressDataSourceContract
                 if ($citySourceId === '') {
                     continue;
                 }
+
                 if ($cityName === '') {
                     continue;
                 }
