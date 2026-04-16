@@ -1,12 +1,14 @@
 <?php
 
 use Dominasys\FilamentLocation\Enums\ActionPositionEnum;
-use Dominasys\FilamentLocation\Services\BrazilianPostalCodeService;
+use Dominasys\FilamentLocation\Services\PostalCodeServiceFactory;
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Component;
+use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Support\Icons\Heroicon;
+use Filament\Schemas\Components\Component;
 use Livewire\Component as LivewireComponent;
 
 class PostalCode extends TextInput
@@ -39,43 +41,54 @@ class PostalCode extends TextInput
 
     private string $nextFocusField = 'number';
 
-    public function getPostalCode(LivewireComponent $livewire, Component $component, Set $set): void
+    public function getPostalCode(LivewireComponent $livewire, Component $component, Get $get, Set $set): void
     {
-        $postalCodeResponse = BrazilianPostalCodeService::get($this->getState());
+        $countryCode = $get($this->countryCodeField) ?: 'BR';
+        $postalCodeResponse = PostalCodeServiceFactory::make($countryCode)->lookup($this->getState());
 
-        if ($postalCodeResponse === []) {
+        if (! $postalCodeResponse->isFound()) {
+            Notification::make()
+                ->warning()
+                ->title($postalCodeResponse->notificationTitle())
+                ->body($postalCodeResponse->notificationBody())
+                ->send();
+
             $livewire->js("document.getElementById('{$component->getKey()}').focus()");
 
             return;
         }
 
-        if (! empty($postalCodeResponse['street'])) {
-            $set($this->streetField, $postalCodeResponse['street']);
+        if (! blank($postalCodeResponse->street)) {
+            $set($this->streetField, $postalCodeResponse->street);
         }
 
-        if (! empty($postalCodeResponse['neighborhood'])) {
-            $set($this->neighborhoodField, $postalCodeResponse['neighborhood']);
+        if (! blank($postalCodeResponse->neighborhood)) {
+            $set($this->neighborhoodField, $postalCodeResponse->neighborhood);
         }
 
-        if (! empty($postalCodeResponse['city'])) {
-            $set($this->cityField, $postalCodeResponse['city']);
+        if (! blank($postalCodeResponse->city)) {
+            $set($this->cityField, $postalCodeResponse->city);
         }
 
-        if (! empty($postalCodeResponse['state'])) {
-            $set($this->stateField, $postalCodeResponse['state']);
+        if (! blank($postalCodeResponse->state)) {
+            $set($this->stateField, $postalCodeResponse->state);
         }
 
-        if (! empty($postalCodeResponse['state_code'])) {
-            $set($this->stateCodeField, $postalCodeResponse['state_code']);
+        if (! blank($postalCodeResponse->stateCode)) {
+            $set($this->stateCodeField, $postalCodeResponse->stateCode);
         }
 
-        if (! empty($postalCodeResponse['ibge_code'])) {
-            $set($this->ibgeCodeField, $postalCodeResponse['ibge_code']);
+        if (! blank($postalCodeResponse->ibgeCode)) {
+            $set($this->ibgeCodeField, $postalCodeResponse->ibgeCode);
         }
 
-        $set($this->countryField, 'Brasil');
+        if (! blank($postalCodeResponse->country)) {
+            $set($this->countryField, $postalCodeResponse->country);
+        }
 
-        $set($this->countryCodeField, 'BR');
+        if (! blank($postalCodeResponse->countryCode)) {
+            $set($this->countryCodeField, $postalCodeResponse->countryCode);
+        }
 
         if ($component->statePath && $component->getKey()) {
             $nextFocusTargetField = str_replace($component->statePath, $this->nextFocusField, $component->getKey());
@@ -83,6 +96,7 @@ class PostalCode extends TextInput
         }
 
     }
+
 
     protected function setUp(): void
     {
@@ -98,9 +112,9 @@ class PostalCode extends TextInput
             return ($this->actionPosition === ActionPositionEnum::PREFIX)
                 ? Action::make('prefixFindPostalCode')
                     ->icon(fn () => $this->actionIcon)
-                    ->action(function (LivewireComponent $livewire, Component $component, Set $set) {
+                    ->action(function (LivewireComponent $livewire, Component $component, Get $get, Set $set) {
                         $livewire->validateOnly($component->getStatePath());
-                        $this->getPostalCode($livewire, $component, $set);
+                        $this->getPostalCode($livewire, $component, $get, $set);
                     })
                 : null;
         });
@@ -109,9 +123,9 @@ class PostalCode extends TextInput
             return ($this->actionPosition === ActionPositionEnum::SUFFIX)
                 ? Action::make('prefixFindPostalCode')
                     ->icon(fn () => $this->actionIcon)
-                    ->action(function (LivewireComponent $livewire, Component $component, Set $set) {
+                    ->action(function (LivewireComponent $livewire, Component $component, Get $get, Set $set) {
                         $livewire->validateOnly($component->getStatePath());
-                        $this->getPostalCode($livewire, $component, $set);
+                        $this->getPostalCode($livewire, $component, $get, $set);
                     })
                 : null;
         });
@@ -152,6 +166,7 @@ class PostalCode extends TextInput
 
         return $this;
     }
+
 
     public function bindCityField(string $cityField): self
     {
