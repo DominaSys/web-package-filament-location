@@ -7,6 +7,7 @@ use Dominasys\FilamentLocation\Forms\Components\Address\Number;
 use Dominasys\FilamentLocation\Forms\Components\Address\State;
 use Dominasys\FilamentLocation\Forms\Components\Address\Street;
 use Dominasys\FilamentLocation\Forms\Components\PostalCode;
+use Dominasys\FilamentLocation\Support\AccentInsensitiveSelectSearch;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 
@@ -28,4 +29,11 @@ it('registers global aliases for backwards compatibility', function () {
     expect(class_exists('PostalCode'))->toBeTrue();
     expect(class_exists('State'))->toBeTrue();
     expect(class_exists('City'))->toBeTrue();
+});
+
+it('builds accent-insensitive fuzzy select search javascript', function () {
+    expect(AccentInsensitiveSelectSearch::xInit())
+        ->toContain('levenshtein')
+        ->and(AccentInsensitiveSelectSearch::xInit())
+        ->toContain('matchScore');
 });
