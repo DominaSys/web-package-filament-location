@@ -35,7 +35,8 @@
         "pestphp/pest": "^3.7|^4.0",
         "pestphp/pest-plugin-arch": "^3.0|^4.0",
         "pestphp/pest-plugin-laravel": "^3.0|^4.0",
-        "pestphp/pest-plugin-livewire": "^3.0|^4.0"
+        "pestphp/pest-plugin-livewire": "^3.0|^4.0",
+        "rector/rector": "^2.4"
     },
     "autoload": {
         "psr-4": {
