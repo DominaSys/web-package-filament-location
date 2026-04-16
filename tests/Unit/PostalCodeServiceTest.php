@@ -35,7 +35,7 @@ it('returns the awesome api payload when it succeeds', function () {
     expect($result->isFound())->toBeTrue()
         ->and($result->toArray())->toMatchArray([
             'postal_code' => '88807215',
-            'country' => 'Brasil',
+            'country' => __('filament-location::location.countries.br.name'),
             'country_code' => 'BR',
             'street' => 'Rua Alceri Maria Gomes da Silva',
             'neighborhood' => 'Santa Luzia',
@@ -75,7 +75,7 @@ it('falls back to the next api when the first one fails', function () {
     expect($result->isFound())->toBeTrue()
         ->and($result->toArray())->toMatchArray([
             'postal_code' => '88807215',
-            'country' => 'Brasil',
+            'country' => __('filament-location::location.countries.br.name'),
             'country_code' => 'BR',
             'street' => 'Rua Alceri Maria Gomes da Silva',
             'neighborhood' => 'Santa Luzia',
@@ -94,7 +94,7 @@ it('returns invalid when the cep format is invalid', function () {
     expect($result->isInvalid())->toBeTrue()
         ->and($result->toArray())->toMatchArray([
             'postal_code' => '123',
-            'country' => 'Brasil',
+            'country' => __('filament-location::location.countries.br.name'),
             'country_code' => 'BR',
             'status' => PostalCodeLookupStatusEnum::INVALID->value,
         ]);
@@ -143,7 +143,7 @@ it('returns an empty payload state when no service can resolve the cep', functio
     expect($result->isNotFound())->toBeTrue()
         ->and($result->toArray())->toMatchArray([
             'postal_code' => '00000000',
-            'country' => 'Brasil',
+            'country' => __('filament-location::location.countries.br.name'),
             'country_code' => 'BR',
             'status' => PostalCodeLookupStatusEnum::NOT_FOUND->value,
         ]);

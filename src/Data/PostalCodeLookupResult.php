@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Dominasys\FilamentLocation\Data;
 
 use Dominasys\FilamentLocation\Enums\PostalCodeLookupStatusEnum;
+use Dominasys\FilamentLocation\Support\Translation;
 
 final readonly class PostalCodeLookupResult
 {
@@ -68,7 +69,7 @@ final readonly class PostalCodeLookupResult
             postalCode: $postalCode,
             country: $country,
             countryCode: $countryCode,
-            message: $message ?? 'O CEP informado e invalido.',
+            message: $message ?? Translation::get('notifications.invalid.body'),
             meta: $meta,
         );
     }
@@ -85,7 +86,7 @@ final readonly class PostalCodeLookupResult
             postalCode: $postalCode,
             country: $country,
             countryCode: $countryCode,
-            message: $message ?? 'Nao foi possivel localizar o CEP informado.',
+            message: $message ?? Translation::get('notifications.not_found.body'),
             meta: $meta,
         );
     }
@@ -102,7 +103,7 @@ final readonly class PostalCodeLookupResult
             postalCode: $postalCode,
             country: $country,
             countryCode: $countryCode,
-            message: $message ?? 'O pais selecionado ainda nao possui servico de CEP suportado.',
+            message: $message ?? Translation::get('notifications.unsupported_country.body'),
             meta: $meta,
         );
     }
@@ -159,19 +160,19 @@ final readonly class PostalCodeLookupResult
     public function notificationTitle(): string
     {
         return match ($this->status) {
-            PostalCodeLookupStatusEnum::INVALID => 'CEP invalido',
-            PostalCodeLookupStatusEnum::NOT_FOUND => 'CEP nao encontrado',
-            PostalCodeLookupStatusEnum::UNSUPPORTED_COUNTRY => 'Pais nao suportado',
-            PostalCodeLookupStatusEnum::FOUND => 'CEP encontrado',
+            PostalCodeLookupStatusEnum::INVALID => Translation::get('notifications.invalid.title'),
+            PostalCodeLookupStatusEnum::NOT_FOUND => Translation::get('notifications.not_found.title'),
+            PostalCodeLookupStatusEnum::UNSUPPORTED_COUNTRY => Translation::get('notifications.unsupported_country.title'),
+            PostalCodeLookupStatusEnum::FOUND => Translation::get('notifications.found.title'),
         };
     }
 
     public function notificationBody(): string
     {
         return $this->message ?? match ($this->status) {
-            PostalCodeLookupStatusEnum::INVALID => 'O CEP informado e invalido.',
-            PostalCodeLookupStatusEnum::NOT_FOUND => 'Nao foi possivel localizar o CEP informado.',
-            PostalCodeLookupStatusEnum::UNSUPPORTED_COUNTRY => 'O pais selecionado ainda nao possui servico de CEP suportado.',
+            PostalCodeLookupStatusEnum::INVALID => Translation::get('notifications.invalid.body'),
+            PostalCodeLookupStatusEnum::NOT_FOUND => Translation::get('notifications.not_found.body'),
+            PostalCodeLookupStatusEnum::UNSUPPORTED_COUNTRY => Translation::get('notifications.unsupported_country.body'),
             PostalCodeLookupStatusEnum::FOUND => '',
         };
     }

@@ -8,13 +8,12 @@ use Dominasys\FilamentLocation\Contracts\PostalCodeServiceContract;
 use Dominasys\FilamentLocation\Data\PostalCodeLookupResult;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
+use Dominasys\FilamentLocation\Support\Translation;
 use Throwable;
 
 final class BrazilianPostalCodeService implements PostalCodeServiceContract
 {
     private const COUNTRY_CODE = 'BR';
-
-    private const COUNTRY_NAME = 'Brasil';
 
     public function lookup(string $postalCode): PostalCodeLookupResult
     {
@@ -23,9 +22,8 @@ final class BrazilianPostalCodeService implements PostalCodeServiceContract
         if (strlen($normalizedPostalCode) !== 8) {
             return PostalCodeLookupResult::invalid(
                 postalCode: $normalizedPostalCode,
-                country: self::COUNTRY_NAME,
+                country: self::countryName(),
                 countryCode: self::COUNTRY_CODE,
-                message: 'O CEP informado e invalido.',
             );
         }
 
@@ -38,7 +36,7 @@ final class BrazilianPostalCodeService implements PostalCodeServiceContract
             if ($responseData !== null) {
                 return PostalCodeLookupResult::found(
                     postalCode: $normalizedPostalCode,
-                    country: self::COUNTRY_NAME,
+                    country: self::countryName(),
                     countryCode: self::COUNTRY_CODE,
                     state: $responseData['state'],
                     stateCode: $responseData['state_code'],
@@ -54,7 +52,7 @@ final class BrazilianPostalCodeService implements PostalCodeServiceContract
 
         return PostalCodeLookupResult::notFound(
             postalCode: $normalizedPostalCode,
-            country: self::COUNTRY_NAME,
+            country: self::countryName(),
             countryCode: self::COUNTRY_CODE,
         );
     }
@@ -184,5 +182,10 @@ final class BrazilianPostalCodeService implements PostalCodeServiceContract
     private static function sanitizePostalCode(string $postalCode): string
     {
         return preg_replace('/\D+/', '', $postalCode) ?? '';
+    }
+
+    private static function countryName(): string
+    {
+        return Translation::countryName(self::COUNTRY_CODE) ?? 'Brazil';
     }
 }
