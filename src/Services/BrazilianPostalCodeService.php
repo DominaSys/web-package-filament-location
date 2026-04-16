@@ -12,8 +12,11 @@ use Illuminate\Support\Facades\Http;
 final class BrazilianPostalCodeService
 {
     const AWESOMEAPI = 'awesomeapi';
+
     const OPENCEP = 'opencep';
+
     const VIACEP = 'viacep';
+
     const BRASILAPI = 'brasilapi';
 
     public static function get(string $postalCode): array
@@ -31,13 +34,15 @@ final class BrazilianPostalCodeService
                     ->title('CEP inválido')
                     ->body('O CEP informado é inválido.')
                     ->send();
+
                 return [];
             }
 
             $responseData = $response->json();
 
             return self::formatResponseData($responseData, self::AWESOMEAPI);
-        } catch (ConnectionException) {}
+        } catch (ConnectionException) {
+        }
 
         try {
             $responseData = Http::get('https://opencep.com/v1/' . $postalCode)->json();
@@ -72,6 +77,7 @@ final class BrazilianPostalCodeService
                     ->title('CEP inválido')
                     ->body('O CEP informado é inválido.')
                     ->send();
+
                 return [];
             }
 

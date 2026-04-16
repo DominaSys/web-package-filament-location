@@ -4,9 +4,9 @@ use Dominasys\FilamentLocation\Enums\ActionPositionEnum;
 use Dominasys\FilamentLocation\Services\BrazilianPostalCodeService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Support\Icons\Heroicon;
-use Filament\Schemas\Components\Component;
 use Livewire\Component as LivewireComponent;
 
 class PostalCode extends TextInput
@@ -84,7 +84,6 @@ class PostalCode extends TextInput
 
     }
 
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -153,7 +152,6 @@ class PostalCode extends TextInput
 
         return $this;
     }
-
 
     public function bindCityField(string $cityField): self
     {
