@@ -13,6 +13,7 @@ use Throwable;
 final class BrazilianPostalCodeService implements PostalCodeServiceContract
 {
     private const COUNTRY_CODE = 'BR';
+
     private const COUNTRY_NAME = 'Brasil';
 
     public function lookup(string $postalCode): PostalCodeLookupResult

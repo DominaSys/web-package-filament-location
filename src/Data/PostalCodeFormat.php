@@ -23,7 +23,7 @@ final class PostalCodeFormat
 
     public static function generic(): self
     {
-        return new self();
+        return new self;
     }
 
     public function validationRules(): array

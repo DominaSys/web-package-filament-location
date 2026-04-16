@@ -30,7 +30,7 @@ it('returns the awesome api payload when it succeeds', function () {
         return Http::response([], 500);
     });
 
-    $result = (new BrazilianPostalCodeService())->lookup('88807-215');
+    $result = (new BrazilianPostalCodeService)->lookup('88807-215');
 
     expect($result->isFound())->toBeTrue()
         ->and($result->toArray())->toMatchArray([
@@ -70,7 +70,7 @@ it('falls back to the next api when the first one fails', function () {
         throw new RuntimeException('Unexpected request: ' . $request->url());
     });
 
-    $result = (new BrazilianPostalCodeService())->lookup('88807-215');
+    $result = (new BrazilianPostalCodeService)->lookup('88807-215');
 
     expect($result->isFound())->toBeTrue()
         ->and($result->toArray())->toMatchArray([
@@ -89,7 +89,7 @@ it('falls back to the next api when the first one fails', function () {
 });
 
 it('returns invalid when the cep format is invalid', function () {
-    $result = (new BrazilianPostalCodeService())->lookup('123');
+    $result = (new BrazilianPostalCodeService)->lookup('123');
 
     expect($result->isInvalid())->toBeTrue()
         ->and($result->toArray())->toMatchArray([
@@ -138,7 +138,7 @@ it('returns an empty payload state when no service can resolve the cep', functio
         throw new RuntimeException('Unexpected request: ' . $request->url());
     });
 
-    $result = (new BrazilianPostalCodeService())->lookup('00000-000');
+    $result = (new BrazilianPostalCodeService)->lookup('00000-000');
 
     expect($result->isNotFound())->toBeTrue()
         ->and($result->toArray())->toMatchArray([
