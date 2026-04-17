@@ -14,3 +14,4 @@ phpstan.neon
 testbench.yaml
 storage/logs/
 vendor
+.codex
