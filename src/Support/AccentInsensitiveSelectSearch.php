@@ -9,7 +9,9 @@ final class AccentInsensitiveSelectSearch
     public static function xInit(): string
     {
         return <<<'JS'
-select.filterOptions = function (query) {
+const selectInstance = select
+
+selectInstance.filterOptions = function (query) {
     const normalize = (value) => String(value ?? '')
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
@@ -105,13 +107,17 @@ select.filterOptions = function (query) {
         return distanceToFullLabel <= threshold ? distanceToFullLabel : Number.POSITIVE_INFINITY
     }
 
-    const normalizedQuery = normalize(query)
-    const searchableOptionFields = this.searchableOptionFields
+    const searchableOptionFields = Array.isArray(selectInstance.searchableOptionFields)
+        ? selectInstance.searchableOptionFields
+        : ['label']
+    const originalOptions = Array.isArray(selectInstance.originalOptions)
+        ? selectInstance.originalOptions
+        : []
     const searchByLabel = searchableOptionFields.includes('label')
     const searchByValue = searchableOptionFields.includes('value')
     const options = []
 
-    for (const option of this.originalOptions) {
+    for (const option of originalOptions) {
         if (option.options && Array.isArray(option.options)) {
             const filteredOptions = option.options
                 .map((groupedOption) => {
@@ -166,15 +172,15 @@ select.filterOptions = function (query) {
         }
     }
 
-    this.options = options
-    this.renderOptions()
+    selectInstance.options = options
+    selectInstance.renderOptions()
 
-    if (this.options.length === 0) {
-        this.showNoResultsMessage()
+    if (selectInstance.options.length === 0) {
+        selectInstance.showNoResultsMessage()
     }
 
-    if (this.isOpen) {
-        this.positionDropdown()
+    if (selectInstance.isOpen) {
+        selectInstance.positionDropdown()
     }
 }
 JS;

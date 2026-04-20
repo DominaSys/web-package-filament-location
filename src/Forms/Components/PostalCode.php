@@ -75,20 +75,20 @@ class PostalCode extends TextInput
             $set($this->neighborhoodField, $postalCodeResponse->neighborhood);
         }
 
-        if (! blank($postalCodeResponse->city)) {
-            $set($this->cityField, $postalCodeResponse->city);
-        }
-
-        if (! blank($postalCodeResponse->cityCode)) {
-            $set($this->cityCodeField, $postalCodeResponse->cityCode);
-        }
-
         if (! blank($postalCodeResponse->state)) {
             $set($this->stateField, $postalCodeResponse->state);
         }
 
         if (! blank($postalCodeResponse->stateCode)) {
             $set($this->stateCodeField, $postalCodeResponse->stateCode);
+        }
+
+        if (! blank($postalCodeResponse->city)) {
+            $set($this->cityField, $postalCodeResponse->city);
+        }
+
+        if (! blank($postalCodeResponse->cityCode)) {
+            $set($this->cityCodeField, $postalCodeResponse->cityCode);
         }
 
         if (! blank($postalCodeResponse->ibgeCode)) {
