@@ -26,6 +26,8 @@ class PostalCode extends TextInput
 
     private ActionPositionEnum $actionPosition = ActionPositionEnum::SUFFIX;
 
+    protected bool $dehydrateMask = false;
+
     private ?string $postalCodeMask = null;
 
     private ?int $postalCodeMinLength = null;
@@ -62,7 +64,7 @@ class PostalCode extends TextInput
                 ->body($postalCodeResponse->notificationBody())
                 ->send();
 
-            $livewire->js(sprintf("document.getElementById('%s').focus()", $component->getKey()));
+            $this->focusElement($livewire, $component->getKey());
 
             return;
         }
@@ -105,7 +107,7 @@ class PostalCode extends TextInput
 
         if ($component->statePath && $component->getKey()) {
             $nextFocusTargetField = str_replace($component->statePath, $this->nextFocusField, $component->getKey());
-            $livewire->js(sprintf("document.getElementById('%s').focus()", $nextFocusTargetField));
+            $this->focusElement($livewire, $nextFocusTargetField);
         }
     }
 
@@ -119,6 +121,13 @@ class PostalCode extends TextInput
         $this->mask(fn (Get $get): ?string => $this->resolvePostalCodeFormat($get)->mask);
         $this->minLength(fn (Get $get): ?int => $this->resolvePostalCodeFormat($get)->minLength);
         $this->maxLength(fn (Get $get): ?int => $this->resolvePostalCodeFormat($get)->maxLength);
+        $this->dehydrateStateUsing(function (?string $state) {
+            if (! $this->dehydrateMask || $state === null) {
+                return $state;
+            }
+
+            return preg_replace('/\D/', '', $state);
+        });
         $this->required();
         $this->rules(fn (Get $get): array => $this->resolvePostalCodeFormat($get)->validationRules());
 
@@ -244,6 +253,24 @@ class PostalCode extends TextInput
         $this->nextFocusField = $targetField;
 
         return $this;
+    }
+
+    public function dehydrateMask(bool $condition = true): self
+    {
+        $this->dehydrateMask = $condition;
+
+        return $this;
+    }
+
+    private function focusElement(LivewireComponent $livewire, string $elementId): void
+    {
+        $livewire->js(sprintf(<<<'JS'
+const element = document.getElementById(%s);
+
+if (element) {
+    element.focus();
+}
+JS, json_encode($elementId, JSON_THROW_ON_ERROR)));
     }
 
     private function resolvePostalCodeFormat(Get $get): PostalCodeFormat

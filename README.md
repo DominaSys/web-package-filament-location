@@ -45,6 +45,14 @@ HouseNumber::make('house_number');
 Complement::make('complement');
 ```
 
+If you want the city select to store the label while also syncing a hidden code field:
+
+```php
+City::make('city')
+    ->bindCityCodeField('city_ibge')
+    ->useLabelAsValue();
+```
+
 ## Supported Countries
 
 Today the package ships with support for Brazil (`BR`).
