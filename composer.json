@@ -59,7 +59,7 @@
         "test:coverage": "pest --coverage",
         "test:lint": "pint --test",
         "sync:address-data": "php scripts/sync-address-data.php",
-        "check": [
+        "dev:check": [
             "@refactor",
             "@lint",
             "@analyse",
