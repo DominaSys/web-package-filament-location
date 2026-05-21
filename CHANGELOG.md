@@ -2,6 +2,18 @@
 
 All notable changes to `filament-location` will be documented in this file.
 
+## v5.3.0 - 2026-05-21
+
+### What's Changed
+
+* Bump dependabot/fetch-metadata from 2.5.0 to 3.1.0 by @dependabot[bot] in https://github.com/DominaSys/web-package-filament-location/pull/3
+
+### New Contributors
+
+* @dependabot[bot] made their first contribution in https://github.com/DominaSys/web-package-filament-location/pull/3
+
+**Full Changelog**: https://github.com/DominaSys/web-package-filament-location/compare/v5.2.0...v5.3.0
+
 ## v5.2.0 - 2026-05-15
 
 **Full Changelog**: https://github.com/DominaSys/web-package-filament-location/compare/v5.1.1...v5.2.0
