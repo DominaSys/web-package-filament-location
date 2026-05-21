@@ -2,6 +2,12 @@
 
 All notable changes to `filament-location` will be documented in this file.
 
+## v5.4.0 - 2026-05-21
+
+laravel 13
+
+**Full Changelog**: https://github.com/DominaSys/web-package-filament-location/compare/v5.3.0...v5.4.0
+
 ## v5.3.0 - 2026-05-21
 
 ### What's Changed
