@@ -126,21 +126,11 @@ class PostalCode extends TextInput
         $this->rules(fn (Get $get): array => $this->resolvePostalCodeFormat($get)->validationRules());
 
         $this->prefixAction(fn (): ?Action => ($this->actionPosition === ActionPositionEnum::PREFIX)
-            ? Action::make('prefixFindPostalCode')
-                ->icon(fn (): string | \BackedEnum => $this->actionIcon)
-                ->action(function (LivewireComponent $livewire, Component $component, Get $get, Set $set): void {
-                    $livewire->validateOnly($component->getStatePath());
-                    $this->getPostalCode($livewire, $component, $get, $set);
-                })
+            ? $this->makePostalCodeAction()
             : null);
 
         $this->suffixAction(fn (): ?Action => ($this->actionPosition === ActionPositionEnum::SUFFIX)
-            ? Action::make('prefixFindPostalCode')
-                ->icon(fn (): string | \BackedEnum => $this->actionIcon)
-                ->action(function (LivewireComponent $livewire, Component $component, Get $get, Set $set): void {
-                    $livewire->validateOnly($component->getStatePath());
-                    $this->getPostalCode($livewire, $component, $get, $set);
-                })
+            ? $this->makePostalCodeAction()
             : null);
     }
 
@@ -258,6 +248,21 @@ if (element) {
     element.focus();
 }
 JS, json_encode($elementId, JSON_THROW_ON_ERROR)));
+    }
+
+    private function makePostalCodeAction(): Action
+    {
+        return Action::make('prefixFindPostalCode')
+            ->icon(fn (): string | \BackedEnum => $this->actionIcon)
+            ->disabled(fn (): bool => $this->isDisabled())
+            ->action(function (LivewireComponent $livewire, Component $component, Get $get, Set $set): void {
+                if ($component->isDisabled()) {
+                    return;
+                }
+
+                $livewire->validateOnly($component->getStatePath());
+                $this->getPostalCode($livewire, $component, $get, $set);
+            });
     }
 
     private function resolvePostalCodeFormat(Get $get): PostalCodeFormat

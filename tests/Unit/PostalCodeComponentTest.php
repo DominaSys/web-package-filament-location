@@ -78,6 +78,17 @@ it('dehydrates postal code values as digits only', function () {
         ->and($callback(null))->toBeNull();
 });
 
+it('disables the postal code action when the field is disabled', function () {
+    $component = PostalCode::make('postal_code')->disabled();
+
+    $method = new ReflectionMethod($component, 'makePostalCodeAction');
+    $method->setAccessible(true);
+
+    $action = $method->invoke($component);
+
+    expect($action->isDisabled())->toBeTrue();
+});
+
 it('syncs the city label field during postal code lookup', function () {
     $livewire = new class extends LivewireComponent
     {
@@ -100,9 +111,7 @@ it('syncs the city label field during postal code lookup', function () {
     };
 
     $component->bindCityField('city')
-        ->bindCityCodeField('city_code')
-        ->bindIbgeCodeField('ibge_code')
-        ->bindCityLabelField('city_label');
+        ->bindCityCodeField('city_code');
 
     $get = mock(Get::class);
     $get->shouldReceive('__invoke')
@@ -118,10 +127,8 @@ it('syncs the city label field during postal code lookup', function () {
     $set->shouldReceive('__invoke')->once()->with('neighborhood', 'Centro');
     $set->shouldReceive('__invoke')->once()->with('state', 'Santa Catarina');
     $set->shouldReceive('__invoke')->once()->with('state_code', 'SC');
-    $set->shouldReceive('__invoke')->once()->with('city', 'Criciuma');
-    $set->shouldReceive('__invoke')->once()->with('city_label', 'Criciuma');
-    $set->shouldReceive('__invoke')->once()->with('city_code', '4204608');
-    $set->shouldReceive('__invoke')->once()->with('ibge_code', '4204608');
+    $set->shouldReceive('__invoke')->once()->with('city', 'Criciuma', false, true);
+    $set->shouldReceive('__invoke')->once()->with('city_code', '4204608', false, true);
     $set->shouldReceive('__invoke')->once()->with('country', 'Brazil');
     $set->shouldReceive('__invoke')->once()->with('country_code', 'BR');
 
