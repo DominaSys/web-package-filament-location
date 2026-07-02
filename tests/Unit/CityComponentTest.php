@@ -29,7 +29,9 @@ afterEach(function () {
 });
 
 it('keeps city codes as the select value by default', function () {
-    $component = City::make('city')->bindCityCodeField('city_ibge');
+    $component = City::make('city')
+        ->bindCityCodeField('city_ibge')
+        ->bindCityLabelField('city');
 
     $options = invokeCityMethod($component, 'resolveOptions', fakeGet());
 
@@ -38,17 +40,21 @@ it('keeps city codes as the select value by default', function () {
         '4202404' => 'Blumenau',
     ]);
 
-    $set = fakeSet()->shouldReceive('__invoke')
+    $set = fakeSet();
+    $set->shouldReceive('__invoke')
         ->once()
-        ->with('city_ibge', '4204608')
-        ->getMock();
+        ->with('city_ibge', '4204608');
+    $set->shouldReceive('__invoke')
+        ->once()
+        ->with('city', 'Criciuma');
 
-    invokeCityMethod($component, 'syncCityCodeField', $set, fakeGet(), '4204608');
+    invokeCityMethod($component, 'syncCityFields', $set, fakeGet(), '4204608');
 });
 
 it('can use the city label as the select value and sync the hidden city code', function () {
     $component = City::make('city')
         ->bindCityCodeField('city_ibge')
+        ->bindCityLabelField('city')
         ->useLabelAsValue();
 
     $options = invokeCityMethod($component, 'resolveOptions', fakeGet());
@@ -60,12 +66,15 @@ it('can use the city label as the select value and sync the hidden city code', f
 
     expect(invokeCityMethod($component, 'resolveCityCodeByLabel', fakeGet(), 'Criciuma'))->toBe('4204608');
 
-    $set = fakeSet()->shouldReceive('__invoke')
+    $set = fakeSet();
+    $set->shouldReceive('__invoke')
         ->once()
-        ->with('city_ibge', '4204608')
-        ->getMock();
+        ->with('city_ibge', '4204608');
+    $set->shouldReceive('__invoke')
+        ->once()
+        ->with('city', 'Criciuma');
 
-    invokeCityMethod($component, 'syncCityCodeField', $set, fakeGet(), 'Criciuma');
+    invokeCityMethod($component, 'syncCityFields', $set, fakeGet(), 'Criciuma');
 });
 
 function fakeGet(): Get

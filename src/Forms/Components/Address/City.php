@@ -18,6 +18,8 @@ class City extends Select
 
     private ?string $cityCodeField = null;
 
+    private ?string $cityLabelField = null;
+
     private bool $useLabelAsValue = false;
 
     public function bindCountryCodeField(string $countryCodeField): self
@@ -37,6 +39,13 @@ class City extends Select
     public function bindCityCodeField(string $cityCodeField): self
     {
         $this->cityCodeField = $cityCodeField;
+
+        return $this;
+    }
+
+    public function bindCityLabelField(string $cityLabelField): self
+    {
+        $this->cityLabelField = $cityLabelField;
 
         return $this;
     }
@@ -61,10 +70,10 @@ class City extends Select
         $this->disabled(fn (Get $get): bool => blank($this->resolveStateCode($get)));
         $this->options(fn (Get $get): array => $this->resolveOptions($get));
         $this->afterStateHydrated(function (Set $set, Get $get, mixed $state): void {
-            $this->syncCityCodeField($set, $get, $state);
+            $this->syncCityFields($set, $get, $state);
         });
         $this->afterStateUpdated(function (Set $set, Get $get, mixed $state): void {
-            $this->syncCityCodeField($set, $get, $state);
+            $this->syncCityFields($set, $get, $state);
         });
         $this->extraAlpineAttributes([
             'x-init' => AccentInsensitiveSelectSearch::xInit(),
@@ -112,17 +121,51 @@ class City extends Select
         return $labelOptions;
     }
 
-    private function syncCityCodeField(Set $set, Get $get, mixed $state): void
+    private function syncCityFields(Set $set, Get $get, mixed $state): void
     {
-        if ($this->cityCodeField === null) {
+        if ($this->cityCodeField === null && $this->cityLabelField === null) {
             return;
         }
 
-        $cityCode = $this->useLabelAsValue
-            ? $this->resolveCityCodeByLabel($get, $state)
-            : $this->normalizeCityCode($state);
+        $cityCode = $this->resolveCityCode($get, $state);
+        $cityLabel = $this->resolveCityLabel($get, $state, $cityCode);
 
-        $set($this->cityCodeField, $cityCode);
+        if ($this->cityCodeField !== null) {
+            $set($this->cityCodeField, $cityCode);
+        }
+
+        if ($this->cityLabelField !== null) {
+            $set($this->cityLabelField, $cityLabel);
+        }
+    }
+
+    private function resolveCityCode(Get $get, mixed $state): ?string
+    {
+        if ($this->useLabelAsValue) {
+            return $this->resolveCityCodeByLabel($get, $state);
+        }
+
+        return $this->normalizeCityCode($state);
+    }
+
+    private function resolveCityLabel(Get $get, mixed $state, ?string $cityCode = null): ?string
+    {
+        if ($this->useLabelAsValue) {
+            return $this->normalizeCityLabel($state);
+        }
+
+        $cityCode ??= $this->normalizeCityCode($state);
+
+        if ($cityCode === null) {
+            return null;
+        }
+
+        $options = AddressFieldOptionsFactory::cities(
+            $this->resolveCountryCode($get),
+            $this->resolveStateCode($get),
+        );
+
+        return isset($options[$cityCode]) ? (string) $options[$cityCode] : null;
     }
 
     private function resolveCityCodeByLabel(Get $get, mixed $state): ?string

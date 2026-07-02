@@ -50,6 +50,7 @@ If you want the city select to store the label while also syncing a hidden code 
 ```php
 City::make('city')
     ->bindCityCodeField('city_ibge')
+    ->bindCityLabelField('city')
     ->useLabelAsValue();
 ```
 
