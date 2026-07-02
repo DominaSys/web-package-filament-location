@@ -20,8 +20,6 @@ use Livewire\Component as LivewireComponent;
 
 class PostalCode extends TextInput
 {
-    public $ibgeCodeField;
-
     private string | BackedEnum $actionIcon = Heroicon::OutlinedMagnifyingGlass;
 
     private ActionPositionEnum $actionPosition = ActionPositionEnum::SUFFIX;
@@ -86,15 +84,11 @@ class PostalCode extends TextInput
         }
 
         if (! blank($postalCodeResponse->city)) {
-            $set($this->cityField, $postalCodeResponse->city);
+            $set($this->cityField, $postalCodeResponse->city, shouldCallUpdatedHooks: true);
         }
 
         if (! blank($postalCodeResponse->cityCode)) {
-            $set($this->cityCodeField, $postalCodeResponse->cityCode);
-        }
-
-        if (! blank($postalCodeResponse->ibgeCode)) {
-            $set($this->ibgeCodeField, $postalCodeResponse->ibgeCode);
+            $set($this->cityCodeField, $postalCodeResponse->cityCode, shouldCallUpdatedHooks: true);
         }
 
         if (! blank($postalCodeResponse->country)) {
@@ -209,13 +203,6 @@ class PostalCode extends TextInput
     public function bindCountryCodeField(string $countryCodeField): self
     {
         $this->countryCodeField = $countryCodeField;
-
-        return $this;
-    }
-
-    public function bindIbgeCodeField(string $ibgeCodeField): self
-    {
-        $this->ibgeCodeField = $ibgeCodeField;
 
         return $this;
     }

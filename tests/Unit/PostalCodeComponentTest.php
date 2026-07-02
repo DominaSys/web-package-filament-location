@@ -1,7 +1,38 @@
 <?php
 
+use Dominasys\FilamentLocation\Data\PostalCodeLookupResult;
 use Dominasys\FilamentLocation\Forms\Components\PostalCode;
+use Dominasys\FilamentLocation\Services\BrazilianPostalCodeService;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Livewire\Component as LivewireComponent;
+
+beforeEach(function () {
+    app()->forgetInstance(BrazilianPostalCodeService::class);
+    app()->instance(BrazilianPostalCodeService::class, new class implements \Dominasys\FilamentLocation\Contracts\PostalCodeServiceContract
+    {
+        public function lookup(string $postalCode): PostalCodeLookupResult
+        {
+            return PostalCodeLookupResult::found(
+                postalCode: '88807215',
+                country: 'Brazil',
+                countryCode: 'BR',
+                state: 'Santa Catarina',
+                stateCode: 'SC',
+                city: 'Criciuma',
+                cityCode: '4204608',
+                neighborhood: 'Centro',
+                street: 'Rua X',
+                ibgeCode: '4204608',
+                source: 'fake',
+            );
+        }
+    });
+});
+
+afterEach(function () {
+    app()->forgetInstance(BrazilianPostalCodeService::class);
+});
 
 it('generates safe focus javascript when the target field is missing', function () {
     $livewire = new class extends LivewireComponent
@@ -45,4 +76,56 @@ it('dehydrates postal code values as digits only', function () {
     expect($maskProperty->getValue($component))->toBeTrue()
         ->and($callback('88807-215'))->toBe('88807215')
         ->and($callback(null))->toBeNull();
+});
+
+it('syncs the city label field during postal code lookup', function () {
+    $livewire = new class extends LivewireComponent
+    {
+        public function js($expression, ...$params)
+        {
+        }
+    };
+
+    $component = new class('postal_code') extends PostalCode
+    {
+        public function getState(): mixed
+        {
+            return '88807-215';
+        }
+
+        public function getKey(bool $isAbsolute = true): ?string
+        {
+            return null;
+        }
+    };
+
+    $component->bindCityField('city')
+        ->bindCityCodeField('city_code')
+        ->bindIbgeCodeField('ibge_code')
+        ->bindCityLabelField('city_label');
+
+    $get = mock(Get::class);
+    $get->shouldReceive('__invoke')
+        ->andReturnUsing(function (string $key): ?string {
+            return match ($key) {
+                'country_code' => 'BR',
+                default => null,
+            };
+        });
+
+    $set = mock(Set::class);
+    $set->shouldReceive('__invoke')->once()->with('street', 'Rua X');
+    $set->shouldReceive('__invoke')->once()->with('neighborhood', 'Centro');
+    $set->shouldReceive('__invoke')->once()->with('state', 'Santa Catarina');
+    $set->shouldReceive('__invoke')->once()->with('state_code', 'SC');
+    $set->shouldReceive('__invoke')->once()->with('city', 'Criciuma');
+    $set->shouldReceive('__invoke')->once()->with('city_label', 'Criciuma');
+    $set->shouldReceive('__invoke')->once()->with('city_code', '4204608');
+    $set->shouldReceive('__invoke')->once()->with('ibge_code', '4204608');
+    $set->shouldReceive('__invoke')->once()->with('country', 'Brazil');
+    $set->shouldReceive('__invoke')->once()->with('country_code', 'BR');
+
+    $method = new ReflectionMethod($component, 'getPostalCode');
+    $method->setAccessible(true);
+    $method->invoke($component, $livewire, $component, $get, $set);
 });
