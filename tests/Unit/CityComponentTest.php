@@ -31,7 +31,7 @@ afterEach(function () {
 it('keeps city codes as the select value by default', function () {
     $component = City::make('city')
         ->bindCityCodeField('city_ibge')
-        ->bindCityLabelField('city');
+        ->bindCityField('city');
 
     $options = invokeCityMethod($component, 'resolveOptions', fakeGet());
 
@@ -54,7 +54,7 @@ it('keeps city codes as the select value by default', function () {
 it('can use the city label as the select value and sync the hidden city code', function () {
     $component = City::make('city')
         ->bindCityCodeField('city_ibge')
-        ->bindCityLabelField('city')
+        ->bindCityField('city')
         ->useLabelAsValue();
 
     $options = invokeCityMethod($component, 'resolveOptions', fakeGet());

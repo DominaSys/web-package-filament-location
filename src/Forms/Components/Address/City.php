@@ -16,46 +16,11 @@ class City extends Select
 
     private string $stateCodeField = 'state_code';
 
+    private ?string $cityField = null;
+
     private ?string $cityCodeField = null;
 
-    private ?string $cityLabelField = null;
-
     private bool $useLabelAsValue = false;
-
-    public function bindCountryCodeField(string $countryCodeField): self
-    {
-        $this->countryCodeField = $countryCodeField;
-
-        return $this;
-    }
-
-    public function bindStateCodeField(string $stateCodeField): self
-    {
-        $this->stateCodeField = $stateCodeField;
-
-        return $this;
-    }
-
-    public function bindCityCodeField(string $cityCodeField): self
-    {
-        $this->cityCodeField = $cityCodeField;
-
-        return $this;
-    }
-
-    public function bindCityLabelField(string $cityLabelField): self
-    {
-        $this->cityLabelField = $cityLabelField;
-
-        return $this;
-    }
-
-    public function useLabelAsValue(bool $condition = true): self
-    {
-        $this->useLabelAsValue = $condition;
-
-        return $this;
-    }
 
     protected function setUp(): void
     {
@@ -78,6 +43,41 @@ class City extends Select
         $this->extraAlpineAttributes([
             'x-init' => AccentInsensitiveSelectSearch::xInit(),
         ]);
+    }
+
+    public function bindCountryCodeField(string $countryCodeField): self
+    {
+        $this->countryCodeField = $countryCodeField;
+
+        return $this;
+    }
+
+    public function bindStateCodeField(string $stateCodeField): self
+    {
+        $this->stateCodeField = $stateCodeField;
+
+        return $this;
+    }
+
+    public function bindCityField(string $cityLabelField): self
+    {
+        $this->cityField = $cityLabelField;
+
+        return $this;
+    }
+
+    public function bindCityCodeField(string $cityCodeField): self
+    {
+        $this->cityCodeField = $cityCodeField;
+
+        return $this;
+    }
+
+    public function useLabelAsValue(bool $condition = true): self
+    {
+        $this->useLabelAsValue = $condition;
+
+        return $this;
     }
 
     private function resolveCountryCode(Get $get): string
@@ -123,7 +123,7 @@ class City extends Select
 
     private function syncCityFields(Set $set, Get $get, mixed $state): void
     {
-        if ($this->cityCodeField === null && $this->cityLabelField === null) {
+        if ($this->cityCodeField === null && $this->cityField === null) {
             return;
         }
 
@@ -134,8 +134,8 @@ class City extends Select
             $set($this->cityCodeField, $cityCode);
         }
 
-        if ($this->cityLabelField !== null) {
-            $set($this->cityLabelField, $cityLabel);
+        if ($this->cityField !== null) {
+            $set($this->cityField, $cityLabel);
         }
     }
 
