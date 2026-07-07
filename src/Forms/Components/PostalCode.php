@@ -123,6 +123,11 @@ class PostalCode extends TextInput
         });
         $this->required();
         $this->rules(fn (Get $get): array => $this->resolvePostalCodeFormat($get)->validationRules());
+        $this->extraInputAttributes([
+            'x-on:keydown.enter.prevent.stop' => <<<'JS'
+$el.closest('[data-field-wrapper]')?.querySelector('.fi-ac-icon-btn-action')?.click()
+JS,
+        ]);
 
         $this->prefixAction(fn (): ?Action => ($this->actionPosition === ActionPositionEnum::PREFIX)
             ? $this->makePostalCodeAction()

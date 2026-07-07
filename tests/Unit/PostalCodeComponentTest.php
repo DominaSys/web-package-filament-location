@@ -1,5 +1,6 @@
 <?php
 
+use Dominasys\FilamentLocation\Contracts\PostalCodeServiceContract;
 use Dominasys\FilamentLocation\Data\PostalCodeLookupResult;
 use Dominasys\FilamentLocation\Forms\Components\PostalCode;
 use Dominasys\FilamentLocation\Services\BrazilianPostalCodeService;
@@ -9,7 +10,7 @@ use Livewire\Component as LivewireComponent;
 
 beforeEach(function () {
     app()->forgetInstance(BrazilianPostalCodeService::class);
-    app()->instance(BrazilianPostalCodeService::class, new class implements \Dominasys\FilamentLocation\Contracts\PostalCodeServiceContract
+    app()->instance(BrazilianPostalCodeService::class, new class implements PostalCodeServiceContract
     {
         public function lookup(string $postalCode): PostalCodeLookupResult
         {
@@ -89,12 +90,20 @@ it('disables the postal code action when the field is disabled', function () {
     expect($action->isDisabled())->toBeTrue();
 });
 
+it('submits the search action on enter', function () {
+    $component = PostalCode::make('postal_code');
+
+    expect($component->getExtraInputAttributes())
+        ->toHaveKey('x-on:keydown.enter.prevent.stop')
+        ->and($component->getExtraInputAttributes()['x-on:keydown.enter.prevent.stop'])
+        ->toContain('.fi-ac-icon-btn-action')
+        ->toContain('click()');
+});
+
 it('syncs the city label field during postal code lookup', function () {
     $livewire = new class extends LivewireComponent
     {
-        public function js($expression, ...$params)
-        {
-        }
+        public function js($expression, ...$params) {}
     };
 
     $component = new class('postal_code') extends PostalCode
