@@ -5,31 +5,24 @@ return [
     'fields' => [
         'postal_code' => [
             'label' => 'Postal code',
-            'placeholder' => '00000-000',
         ],
         'state' => [
             'label' => 'State',
-            'placeholder' => 'Select a state',
         ],
         'city' => [
             'label' => 'City',
-            'placeholder' => 'Select a city',
         ],
         'neighborhood' => [
             'label' => 'Neighborhood',
-            'placeholder' => 'Neighborhood',
         ],
         'street' => [
             'label' => 'Street',
-            'placeholder' => 'Street',
         ],
         'number' => [
             'label' => 'Number',
-            'placeholder' => 'Number',
         ],
         'complement' => [
             'label' => 'Complement',
-            'placeholder' => 'Complement',
         ],
     ],
 
