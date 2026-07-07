@@ -35,7 +35,6 @@ class State extends Select
         parent::setUp();
 
         $this->label(__('filament-location::location.fields.state.label'));
-        $this->placeholder(__('filament-location::location.fields.state.placeholder'));
         $this->searchable();
         $this->preload();
         $this->native(false);

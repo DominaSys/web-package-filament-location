@@ -13,7 +13,6 @@ class Neighborhood extends TextInput
         parent::setUp();
 
         $this->label(__('filament-location::location.fields.neighborhood.label'));
-        $this->placeholder(__('filament-location::location.fields.neighborhood.placeholder'));
         $this->autocomplete('address-level3');
         $this->maxLength(120);
     }

@@ -13,7 +13,6 @@ class Complement extends TextInput
         parent::setUp();
 
         $this->label(__('filament-location::location.fields.complement.label'));
-        $this->placeholder(__('filament-location::location.fields.complement.placeholder'));
         $this->autocomplete('address-line2');
         $this->columnSpanFull();
         $this->maxLength(255);

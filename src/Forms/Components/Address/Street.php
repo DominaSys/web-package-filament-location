@@ -13,7 +13,6 @@ class Street extends TextInput
         parent::setUp();
 
         $this->label(__('filament-location::location.fields.street.label'));
-        $this->placeholder(__('filament-location::location.fields.street.placeholder'));
         $this->autocomplete('address-line1');
         $this->columnSpanFull();
         $this->maxLength(255);

@@ -27,7 +27,6 @@ class City extends Select
         parent::setUp();
 
         $this->label(__('filament-location::location.fields.city.label'));
-        $this->placeholder(__('filament-location::location.fields.city.placeholder'));
         $this->searchable();
         $this->preload();
         $this->native(false);

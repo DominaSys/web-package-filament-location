@@ -110,7 +110,6 @@ class PostalCode extends TextInput
         parent::setUp();
 
         $this->label(__('filament-location::location.fields.postal_code.label'));
-        $this->placeholder(__('filament-location::location.fields.postal_code.placeholder'));
         $this->autocomplete('postal-code');
         $this->mask(fn (Get $get): ?string => $this->resolvePostalCodeFormat($get)->mask);
         $this->minLength(fn (Get $get): ?int => $this->resolvePostalCodeFormat($get)->minLength);
