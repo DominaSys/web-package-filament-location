@@ -113,7 +113,9 @@ it('renders an explicit draggable pin and supports positioning it from the map',
 
     expect($component)
         ->toContain('PinElement')
-        ->toContain('content: pin')
+        ->toContain('pin.element ?? pin')
+        ->toContain('collisionBehavior: CollisionBehavior.REQUIRED')
+        ->toContain('clickableIcons: false')
         ->toContain('gmpDraggable: true')
         ->toContain("this.map.addListener('click'")
         ->toContain("this.marker.addListener('dragend'");

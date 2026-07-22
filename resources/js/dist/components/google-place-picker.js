@@ -138,7 +138,7 @@ export default function googlePlacePicker({
                 }
 
                 const googleMaps = await loadGoogleMaps(apiKey, language, region)
-                const [{ Map }, { AdvancedMarkerElement, PinElement }, { PlaceAutocompleteElement }] = await Promise.all([
+                const [{ Map }, { AdvancedMarkerElement, CollisionBehavior, PinElement }, { PlaceAutocompleteElement }] = await Promise.all([
                     googleMaps.importLibrary('maps'),
                     googleMaps.importLibrary('marker'),
                     googleMaps.importLibrary('places'),
@@ -155,6 +155,7 @@ export default function googlePlacePicker({
                     mapId,
                     streetViewControl: false,
                     mapTypeControl: false,
+                    clickableIcons: false,
                 })
 
                 const pin = new PinElement({
@@ -164,8 +165,10 @@ export default function googlePlacePicker({
                 this.marker = new AdvancedMarkerElement({
                     map: this.map,
                     position: center,
-                    content: pin,
+                    content: pin.element ?? pin,
+                    collisionBehavior: CollisionBehavior.REQUIRED,
                     gmpDraggable: true,
+                    zIndex: 1000,
                     title: 'Arraste o pin ou clique no mapa para ajustar o ponto',
                 })
 
