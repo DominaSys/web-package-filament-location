@@ -112,15 +112,22 @@ it('renders an explicit draggable pin and supports positioning it from the map',
     $component = file_get_contents(__DIR__ . '/../../resources/js/dist/components/google-place-picker.js');
 
     expect($component)
-        ->toContain('PinElement')
+        ->not->toContain('PinElement')
         ->not->toContain('content:')
-        ->toContain('this.marker.append(pin)')
-        ->toContain('map: hasCoordinates ? this.map : null')
-        ->toContain('this.marker.map = this.map')
+        ->toContain('window.Alpine.raw(value)')
+        ->toContain('const map = new Map')
+        ->toContain('const marker = new AdvancedMarkerElement')
+        ->toContain('if (hasCoordinates)')
+        ->toContain('marker.map = map')
         ->toContain('collisionBehavior: CollisionBehavior.REQUIRED')
-        ->toContain('clickableIcons: false')
+        ->toContain('clickableIcons: true')
         ->toContain('event.stop?.()')
+        ->toContain('if (event.placeId)')
+        ->toContain('new Place({ id: event.placeId })')
+        ->toContain("fields: ['id', 'displayName', 'formattedAddress', 'location', 'addressComponents']")
+        ->not->toContain('console.info')
+        ->not->toContain('console.warn')
         ->toContain('gmpDraggable: true')
-        ->toContain("this.map.addListener('click'")
-        ->toContain("this.marker.addListener('dragend'");
+        ->toContain("map.addListener('click'")
+        ->toContain("marker.addListener('dragend'");
 });

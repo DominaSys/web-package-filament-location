@@ -46,12 +46,16 @@ function componentValue(components, type, short = false) {
         : component.longText ?? component.long_name ?? component.shortText ?? component.short_name ?? null
 }
 
+function raw(value) {
+    return window.Alpine?.raw ? window.Alpine.raw(value) : value
+}
+
 function normalizePlace(place, predictionText, metadata) {
     const components = place.addressComponents ?? []
 
     return {
         place_id: place.id ?? null,
-        name: predictionText || null,
+        name: predictionText || place.displayName || null,
         formatted_address: place.formattedAddress ?? null,
         latitude: place.location?.lat() ?? null,
         longitude: place.location?.lng() ?? null,
@@ -138,55 +142,67 @@ export default function googlePlacePicker({
                 }
 
                 const googleMaps = await loadGoogleMaps(apiKey, language, region)
-                const [{ Map }, { AdvancedMarkerElement, CollisionBehavior, PinElement }, { PlaceAutocompleteElement }] = await Promise.all([
+                const [{ Map }, { AdvancedMarkerElement, CollisionBehavior }, { Place, PlaceAutocompleteElement }] = await Promise.all([
                     googleMaps.importLibrary('maps'),
                     googleMaps.importLibrary('marker'),
                     googleMaps.importLibrary('places'),
                 ])
 
-                const hasCoordinates = Number.isFinite(Number(initialLatitude)) && Number.isFinite(Number(initialLongitude))
+                const latitude = Number(initialLatitude)
+                const longitude = Number(initialLongitude)
+                const hasCoordinates = Number.isFinite(latitude)
+                    && Number.isFinite(longitude)
+                    && !(latitude === 0 && longitude === 0)
                 const center = hasCoordinates
-                    ? { lat: Number(initialLatitude), lng: Number(initialLongitude) }
+                    ? { lat: latitude, lng: longitude }
                     : { lat: -14.235, lng: -51.9253 }
 
-                this.map = new Map(this.$refs.map, {
+                const map = new Map(this.$refs.map, {
                     center,
                     zoom: hasCoordinates ? zoom : 4,
                     mapId,
                     streetViewControl: false,
                     mapTypeControl: false,
-                    clickableIcons: false,
+                    clickableIcons: true,
                 })
-                this.map.setOptions({ clickableIcons: false })
+                this.map = map
 
-                this.marker = new AdvancedMarkerElement({
-                    map: hasCoordinates ? this.map : null,
+                const marker = new AdvancedMarkerElement({
                     position: center,
                     collisionBehavior: CollisionBehavior.REQUIRED,
                     gmpDraggable: true,
                     zIndex: 1000,
                     title: 'Arraste o pin ou clique no mapa para ajustar o ponto',
                 })
-                const pin = new PinElement({ scale: 1.1 })
-                this.marker.append(pin)
+                this.marker = marker
 
-                this.marker.addListener('dragend', () => {
-                    const position = this.marker.position
+                if (hasCoordinates) {
+                    marker.map = map
+                }
+
+                marker.addListener('dragend', () => {
+                    const position = marker.position
                     const latitude = typeof position.lat === 'function' ? position.lat() : position.lat
                     const longitude = typeof position.lng === 'function' ? position.lng() : position.lng
 
                     this.updateCoordinates(Number(latitude), Number(longitude))
                 })
 
-                this.map.addListener('click', (event) => {
+                map.addListener('click', async (event) => {
                     event.stop?.()
 
                     if (!event.latLng) {
                         return
                     }
 
-                    this.marker.map = this.map
-                    this.marker.position = event.latLng
+                    if (event.placeId) {
+                        await this.selectPlace(new Place({ id: event.placeId }))
+
+                        return
+                    }
+
+                    marker.map = map
+                    marker.position = event.latLng
                     this.updateCoordinates(event.latLng.lat(), event.latLng.lng())
                 })
 
@@ -200,6 +216,7 @@ export default function googlePlacePicker({
                 autocomplete.addEventListener('gmp-placeselect', (event) => this.selectPrediction(event.placePrediction))
                 this.$refs.autocomplete.replaceChildren(autocomplete)
             } catch (error) {
+                console.error('[filament-location] initialization:error', error)
                 this.error = error instanceof Error ? error.message : 'Não foi possível inicializar o Google Maps.'
             }
         },
@@ -209,14 +226,19 @@ export default function googlePlacePicker({
                 return
             }
 
-            try {
-                const place = prediction.toPlace()
+            await this.selectPlace(
+                prediction.toPlace(),
+                prediction.mainText?.text ?? prediction.text?.text ?? null,
+            )
+        },
 
+        async selectPlace(place, predictionText = null) {
+            try {
                 await place.fetchFields({
-                    fields: ['id', 'formattedAddress', 'location', 'addressComponents'],
+                    fields: ['id', 'displayName', 'formattedAddress', 'location', 'addressComponents'],
                 })
 
-                const data = normalizePlace(place, prediction.mainText?.text ?? prediction.text?.text ?? null, metadata)
+                const data = normalizePlace(place, predictionText, metadata)
 
                 Object.entries(bindings).forEach(([key, path]) => {
                     this.$wire.set(path, data[key] ?? null, false)
@@ -225,17 +247,20 @@ export default function googlePlacePicker({
                 await this.$wire.set(statePath, data, true)
 
                 const position = { lat: data.latitude, lng: data.longitude }
+                const map = raw(this.map)
+                const marker = raw(this.marker)
 
-                this.marker.map = this.map
-                this.marker.position = position
-                this.map.setCenter(position)
-                this.map.setZoom(zoom)
+                marker.map = map
+                marker.position = position
+                map.setCenter(position)
+                map.setZoom(zoom)
                 this.error = null
                 this.$root.dispatchEvent(new CustomEvent('filament-location:place-selected', {
                     bubbles: true,
                     detail: data,
                 }))
             } catch (error) {
+                console.error('[filament-location] place-selection:error', error)
                 this.error = error instanceof Error ? error.message : 'Não foi possível carregar o endereço selecionado.'
             }
         },
