@@ -7,7 +7,8 @@ bootstrap/cache/
 build/
 composer.lock
 coverage
-docs
+docs/*
+!docs/google-maps.md
 node_modules
 phpunit.xml
 phpstan.neon
