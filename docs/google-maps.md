@@ -118,7 +118,7 @@ GooglePlacePicker::make('google_place')
 
 The Google script loads on demand. The map is initialized only when the field becomes visible, which avoids creating a billable map session while a containing tab is closed.
 
-Selecting a Places result updates the configured address bindings and coordinates. Dragging the pin updates only latitude, longitude, source, and precision. It does not execute reverse geocoding.
+Selecting a Places result updates the configured address bindings and coordinates. Dragging the pin or clicking the map updates only latitude, longitude, source, and precision. Neither action executes reverse geocoding.
 
 ## Reverse geocoding
 
@@ -133,7 +133,7 @@ Responses are cached using normalized coordinates. Timeout and cache duration us
 3. Search for a venue or address.
 4. Select a Places suggestion.
 5. Confirm bound address fields and coordinates are filled.
-6. Drag the marker and confirm coordinates, source, and precision change.
+6. Drag the marker or click the map and confirm coordinates, source, and precision change.
 7. Save and reload the record.
 8. When applicable, validate the public embed separately.
 
