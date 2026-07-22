@@ -50,6 +50,8 @@ Complement::make('complement');
 
 Enable Google only in applications that need it. Use a browser key restricted by domain for Maps JavaScript and Places, and a separate server key restricted by IP for explicit reverse geocoding:
 
+For the complete Google Cloud, credentials, security, validation, and troubleshooting setup, see the [Google Maps integration guide](GOOGLE_MAPS.md).
+
 ```dotenv
 FILAMENT_LOCATION_GOOGLE_ENABLED=true
 FILAMENT_LOCATION_GOOGLE_BROWSER_KEY=
