@@ -7,9 +7,13 @@ namespace Dominasys\FilamentLocation;
 use Dominasys\FilamentLocation\Commands\SyncAddressDataCommand;
 use Dominasys\FilamentLocation\Contracts\AddressDataRepositoryContract;
 use Dominasys\FilamentLocation\Contracts\AddressDataSourceFactoryContract;
+use Dominasys\FilamentLocation\Contracts\ReverseGeocodingServiceContract;
 use Dominasys\FilamentLocation\Services\AddressDataSourceFactory;
+use Dominasys\FilamentLocation\Services\GoogleReverseGeocodingService;
 use Dominasys\FilamentLocation\Services\JsonAddressDataRepository;
 use Dominasys\FilamentLocation\Testing\TestsFilamentLocation;
+use Filament\Support\Assets\AlpineComponent;
+use Filament\Support\Facades\FilamentAsset;
 use Livewire\Features\SupportTesting\Testable;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
@@ -29,14 +33,16 @@ class FilamentLocationServiceProvider extends PackageServiceProvider
                     ->askToStarRepoOnGitHub('dominasys/filament-location');
             });
 
-        $configFileName = $package->shortName();
-
-        if (file_exists($package->basePath(sprintf('/../config/%s.php', $configFileName)))) {
-            $package->hasConfigFile();
+        if (file_exists($package->basePath('/../config/location.php'))) {
+            $package->hasConfigFile('location');
         }
 
         if (file_exists($package->basePath('/../resources/lang'))) {
             $package->hasTranslations();
+        }
+
+        if (file_exists($package->basePath('/../resources/views'))) {
+            $package->hasViews();
         }
     }
 
@@ -44,10 +50,18 @@ class FilamentLocationServiceProvider extends PackageServiceProvider
     {
         $this->app->singleton(AddressDataRepositoryContract::class, JsonAddressDataRepository::class);
         $this->app->singleton(AddressDataSourceFactoryContract::class, AddressDataSourceFactory::class);
+        $this->app->singleton(ReverseGeocodingServiceContract::class, GoogleReverseGeocodingService::class);
     }
 
     public function packageBooted(): void
     {
+        FilamentAsset::register([
+            AlpineComponent::make(
+                'google-place-picker',
+                __DIR__ . '/../resources/js/dist/components/google-place-picker.js',
+            ),
+        ], package: 'dominasys/filament-location');
+
         // Testing
         Testable::mixin(new TestsFilamentLocation);
     }

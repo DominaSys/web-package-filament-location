@@ -2,6 +2,19 @@
 
 All notable changes to `filament-location` will be documented in this file.
 
+## Unreleased
+
+### Added
+
+- Optional Google Places and Dynamic Maps field with lazy, visibility-aware initialization
+- Explicit server-side reverse geocoding contract with local IBGE municipality resolution
+- Granular address, coordinates, place ID, source, and precision bindings
+
+### Changed
+
+- Package configuration is now explicitly published and merged under the existing `location` key
+- Existing postal code and country-aware address components remain independent from Google
+
 ## v5.8.0 - 2026-07-20
 
 **Full Changelog**: https://github.com/DominaSys/web-package-filament-location/compare/v5.7.0...v5.8.0

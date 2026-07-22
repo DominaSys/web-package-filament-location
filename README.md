@@ -14,6 +14,7 @@
 - Accent-insensitive and typo-tolerant search
 - Canonical address dataset stored per country
 - Localization for `en` and `pt_BR`
+- Optional Google Places and Maps picker, disabled by default
 
 ## Installation
 
@@ -44,6 +45,45 @@ Street::make('street');
 HouseNumber::make('house_number');
 Complement::make('complement');
 ```
+
+### Optional Google integration
+
+Enable Google only in applications that need it. Use a browser key restricted by domain for Maps JavaScript and Places, and a separate server key restricted by IP for explicit reverse geocoding:
+
+```dotenv
+FILAMENT_LOCATION_GOOGLE_ENABLED=true
+FILAMENT_LOCATION_GOOGLE_BROWSER_KEY=
+FILAMENT_LOCATION_GOOGLE_SERVER_KEY=
+FILAMENT_LOCATION_GOOGLE_EMBED_KEY=
+FILAMENT_LOCATION_GOOGLE_MAP_ID=
+FILAMENT_LOCATION_GOOGLE_REVERSE_GEOCODING_CACHE_TTL=86400
+```
+
+The picker loads its Alpine component on demand and only initializes Google Maps after the field is actually visible:
+
+```php
+use Dominasys\FilamentLocation\Forms\Components\GooglePlacePicker;
+
+GooglePlacePicker::make('google_place')
+    ->bindVenueNameField('venue_name')
+    ->bindAddressField('formatted_address')
+    ->bindPostalCodeField('postal_code')
+    ->bindStateField('state')
+    ->bindStateCodeField('state_code')
+    ->bindCityField('city')
+    ->bindCityCodeField('city_code')
+    ->bindLatitudeField('latitude')
+    ->bindLongitudeField('longitude')
+    ->bindPlaceIdField('place_id')
+    ->bindSourceField('location_source')
+    ->bindPrecisionField('location_precision')
+    ->placeSource('google')
+    ->pinSource('google_pin')
+    ->placePrecision('rooftop')
+    ->pinPrecision('user_selected');
+```
+
+Dragging the pin only changes coordinates, source, and precision. Reverse geocoding is never triggered during hydration or automatically after dragging; applications must invoke `ReverseGeocodingServiceContract::reverse()` from an explicit user action.
 
 If you want the city select to store the label while also syncing a hidden code field:
 

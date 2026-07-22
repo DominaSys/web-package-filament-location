@@ -20,4 +20,17 @@ return [
             ],
         ],
     ],
+    'google' => [
+        'enabled' => filter_var($_ENV['FILAMENT_LOCATION_GOOGLE_ENABLED'] ?? false, FILTER_VALIDATE_BOOL),
+        'browser_key' => $_ENV['FILAMENT_LOCATION_GOOGLE_BROWSER_KEY'] ?? null,
+        'server_key' => $_ENV['FILAMENT_LOCATION_GOOGLE_SERVER_KEY'] ?? null,
+        'embed_key' => $_ENV['FILAMENT_LOCATION_GOOGLE_EMBED_KEY'] ?? null,
+        'map_id' => $_ENV['FILAMENT_LOCATION_GOOGLE_MAP_ID'] ?? null,
+        'language' => $_ENV['FILAMENT_LOCATION_GOOGLE_LANGUAGE'] ?? 'pt-BR',
+        'region' => $_ENV['FILAMENT_LOCATION_GOOGLE_REGION'] ?? 'BR',
+        'geocoding_url' => $_ENV['FILAMENT_LOCATION_GOOGLE_GEOCODING_URL'] ?? 'https://maps.googleapis.com/maps/api/geocode/json',
+        'connect_timeout' => (int) ($_ENV['FILAMENT_LOCATION_GOOGLE_CONNECT_TIMEOUT'] ?? 5),
+        'timeout' => (int) ($_ENV['FILAMENT_LOCATION_GOOGLE_TIMEOUT'] ?? 10),
+        'reverse_geocoding_cache_ttl' => (int) ($_ENV['FILAMENT_LOCATION_GOOGLE_REVERSE_GEOCODING_CACHE_TTL'] ?? 86400),
+    ],
 ];

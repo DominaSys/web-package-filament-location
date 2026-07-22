@@ -2,6 +2,11 @@
 
 // translations for Dominasys/FilamentLocation
 return [
+    'google' => [
+        'label' => 'Localização no Google Maps',
+        'helper' => 'Busque um estabelecimento ou endereço e ajuste o ponto no mapa quando necessário.',
+        'search_placeholder' => 'Busque um local ou endereço',
+    ],
     'fields' => [
         'postal_code' => [
             'label' => 'CEP',

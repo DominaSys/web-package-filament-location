@@ -2,6 +2,11 @@
 
 // translations for Dominasys/FilamentLocation
 return [
+    'google' => [
+        'label' => 'Google Maps location',
+        'helper' => 'Search for a place or address and adjust the point on the map when needed.',
+        'search_placeholder' => 'Search for a place or address',
+    ],
     'fields' => [
         'postal_code' => [
             'label' => 'Postal code',
