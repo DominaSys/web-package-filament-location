@@ -165,7 +165,7 @@ export default function googlePlacePicker({
                 this.marker = new AdvancedMarkerElement({
                     map: this.map,
                     position: center,
-                    content: pin.element ?? pin,
+                    content: pin,
                     collisionBehavior: CollisionBehavior.REQUIRED,
                     gmpDraggable: true,
                     zIndex: 1000,
