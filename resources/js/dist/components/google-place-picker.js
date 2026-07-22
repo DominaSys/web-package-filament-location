@@ -138,7 +138,7 @@ export default function googlePlacePicker({
                 }
 
                 const googleMaps = await loadGoogleMaps(apiKey, language, region)
-                const [{ Map }, { AdvancedMarkerElement, CollisionBehavior }, { PlaceAutocompleteElement }] = await Promise.all([
+                const [{ Map }, { AdvancedMarkerElement, CollisionBehavior, PinElement }, { PlaceAutocompleteElement }] = await Promise.all([
                     googleMaps.importLibrary('maps'),
                     googleMaps.importLibrary('marker'),
                     googleMaps.importLibrary('places'),
@@ -160,13 +160,15 @@ export default function googlePlacePicker({
                 this.map.setOptions({ clickableIcons: false })
 
                 this.marker = new AdvancedMarkerElement({
-                    map: this.map,
+                    map: hasCoordinates ? this.map : null,
                     position: center,
                     collisionBehavior: CollisionBehavior.REQUIRED,
                     gmpDraggable: true,
                     zIndex: 1000,
                     title: 'Arraste o pin ou clique no mapa para ajustar o ponto',
                 })
+                const pin = new PinElement({ scale: 1.1 })
+                this.marker.append(pin)
 
                 this.marker.addListener('dragend', () => {
                     const position = this.marker.position
@@ -183,6 +185,7 @@ export default function googlePlacePicker({
                         return
                     }
 
+                    this.marker.map = this.map
                     this.marker.position = event.latLng
                     this.updateCoordinates(event.latLng.lat(), event.latLng.lng())
                 })
@@ -223,6 +226,7 @@ export default function googlePlacePicker({
 
                 const position = { lat: data.latitude, lng: data.longitude }
 
+                this.marker.map = this.map
                 this.marker.position = position
                 this.map.setCenter(position)
                 this.map.setZoom(zoom)
