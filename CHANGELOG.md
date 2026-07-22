@@ -2,6 +2,10 @@
 
 All notable changes to `filament-location` will be documented in this file.
 
+## v5.9.0 - 2026-07-22
+
+**Full Changelog**: https://github.com/DominaSys/web-package-filament-location/compare/v5.8.0...v5.9.0
+
 ## Unreleased
 
 ### Added
