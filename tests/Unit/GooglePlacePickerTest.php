@@ -112,11 +112,11 @@ it('renders an explicit draggable pin and supports positioning it from the map',
     $component = file_get_contents(__DIR__ . '/../../resources/js/dist/components/google-place-picker.js');
 
     expect($component)
-        ->toContain('PinElement')
-        ->toContain('content: pin')
-        ->not->toContain('pin.element')
+        ->not->toContain('PinElement')
+        ->not->toContain('content:')
         ->toContain('collisionBehavior: CollisionBehavior.REQUIRED')
         ->toContain('clickableIcons: false')
+        ->toContain('event.stop?.()')
         ->toContain('gmpDraggable: true')
         ->toContain("this.map.addListener('click'")
         ->toContain("this.marker.addListener('dragend'");

@@ -138,7 +138,7 @@ export default function googlePlacePicker({
                 }
 
                 const googleMaps = await loadGoogleMaps(apiKey, language, region)
-                const [{ Map }, { AdvancedMarkerElement, CollisionBehavior, PinElement }, { PlaceAutocompleteElement }] = await Promise.all([
+                const [{ Map }, { AdvancedMarkerElement, CollisionBehavior }, { PlaceAutocompleteElement }] = await Promise.all([
                     googleMaps.importLibrary('maps'),
                     googleMaps.importLibrary('marker'),
                     googleMaps.importLibrary('places'),
@@ -157,15 +157,11 @@ export default function googlePlacePicker({
                     mapTypeControl: false,
                     clickableIcons: false,
                 })
-
-                const pin = new PinElement({
-                    scale: 1.1,
-                })
+                this.map.setOptions({ clickableIcons: false })
 
                 this.marker = new AdvancedMarkerElement({
                     map: this.map,
                     position: center,
-                    content: pin,
                     collisionBehavior: CollisionBehavior.REQUIRED,
                     gmpDraggable: true,
                     zIndex: 1000,
@@ -181,6 +177,8 @@ export default function googlePlacePicker({
                 })
 
                 this.map.addListener('click', (event) => {
+                    event.stop?.()
+
                     if (!event.latLng) {
                         return
                     }
