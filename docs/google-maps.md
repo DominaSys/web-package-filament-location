@@ -26,7 +26,7 @@ Advanced markers require this Map ID.
 Create an API key for browser requests:
 
 - Application restriction: Websites
-- API restrictions: Maps JavaScript API and Places API (New)
+- API restrictions: Maps JavaScript API, Places API (New), and Geocoding API
 - Website restrictions: only the local, staging, and production origins that render the picker
 
 Examples:
@@ -118,11 +118,13 @@ GooglePlacePicker::make('google_place')
 
 The Google script loads on demand. The map is initialized only when the field becomes visible, which avoids creating a billable map session while a containing tab is closed.
 
-Selecting a Places result updates the configured address bindings and coordinates. Dragging the pin or clicking the map updates only latitude, longitude, source, and precision. Neither action executes reverse geocoding.
+Selecting a Places result updates the configured address bindings and coordinates. Clicking a point without a place or finishing a pin drag executes one client-side reverse-geocoding request, then updates the address bindings and coordinates. When the point does not identify a venue, its bound venue name is cleared.
 
 ## Reverse geocoding
 
-Resolve `ReverseGeocodingServiceContract` only from an explicit application action, such as a **Locate again** button. Do not call it during hydration or rendering.
+The picker uses the Maps JavaScript Geocoding Service with the browser key after a map click or pin drag. Therefore, the browser key must allow Geocoding API in addition to Maps JavaScript API and Places API (New).
+
+The package also provides `ReverseGeocodingServiceContract` for server-side flows. Resolve it only from an explicit application action. Do not call it during hydration or rendering.
 
 Responses are cached using normalized coordinates. Timeout and cache duration use the environment values above.
 
@@ -133,7 +135,7 @@ Responses are cached using normalized coordinates. Timeout and cache duration us
 3. Search for a venue or address.
 4. Select a Places suggestion.
 5. Confirm bound address fields and coordinates are filled.
-6. Drag the marker or click the map and confirm coordinates, source, and precision change.
+6. Drag the marker or click a point without a place and confirm the address and coordinates change.
 7. Save and reload the record.
 8. When applicable, validate the public embed separately.
 
@@ -155,6 +157,10 @@ Enable the API named by the browser error in the same project as the credential.
 
 The Maps JavaScript API may be enabled while Places API (New) is disabled or excluded from the browser key.
 
+### `GEOCODER_GEOCODE: REQUEST_DENIED: The webpage is not allowed to use the geocoder`
+
+Enable **Geocoding API** in the same Google Cloud project and add it to the API restrictions of the browser key. Keep the key application-restricted to **Websites**, with every local, staging, and production origin that renders the picker. Do not expose the server key to solve this error. Changes may take several minutes to propagate.
+
 ### Server reverse geocoding returns `403`
 
 Confirm Geocoding API is enabled, allowed on the server key, and the request originates from an allowed public outbound IP.
@@ -165,5 +171,6 @@ Confirm Geocoding API is enabled, allowed on the server key, and the request ori
 - Restrict every production key by API and application type.
 - Keep separate keys for browser maps, server geocoding, and embeds.
 - Configure Google Cloud budgets, quota limits, and billing alerts.
+- A map click or completed pin drag outside a place generates one billable Geocoding request. Review the current Geocoding free usage cap and price in Google Maps Platform pricing.
 - Register only required production, staging, and development origins.
 - Remove temporary unrestricted keys after local validation.

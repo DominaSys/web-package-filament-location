@@ -48,7 +48,7 @@ Complement::make('complement');
 
 ### Optional Google integration
 
-Enable Google only in applications that need it. Use a browser key restricted by domain for Maps JavaScript and Places, and a separate server key restricted by IP for explicit reverse geocoding:
+Enable Google only in applications that need it. Use a browser key restricted by domain for Maps JavaScript, Places API (New), and client-side Geocoding. Keep a separate server key restricted by IP for server-side reverse geocoding:
 
 For the complete Google Cloud, credentials, security, validation, and troubleshooting setup, see the [Google Maps integration guide](docs/google-maps.md).
 
@@ -85,7 +85,7 @@ GooglePlacePicker::make('google_place')
     ->pinPrecision('user_selected');
 ```
 
-Dragging the pin only changes coordinates, source, and precision. Reverse geocoding is never triggered during hydration or automatically after dragging; applications must invoke `ReverseGeocodingServiceContract::reverse()` from an explicit user action.
+Clicking a point without a place or finishing a pin drag performs one client-side reverse-geocoding request and synchronizes the address and coordinates. No geocoding runs during hydration. Server-side flows may use `ReverseGeocodingServiceContract::reverse()` explicitly.
 
 If you want the city select to store the label while also syncing a hidden code field:
 

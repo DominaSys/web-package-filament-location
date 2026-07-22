@@ -116,6 +116,8 @@ it('renders an explicit draggable pin and supports positioning it from the map',
         ->not->toContain('content:')
         ->toContain('window.Alpine.raw(value)')
         ->toContain('const map = new Map')
+        ->toContain("googleMaps.importLibrary('geocoding')")
+        ->toContain('this.geocoder = new Geocoder()')
         ->toContain('const marker = new AdvancedMarkerElement')
         ->toContain('if (hasCoordinates)')
         ->toContain('marker.map = map')
@@ -124,10 +126,15 @@ it('renders an explicit draggable pin and supports positioning it from the map',
         ->toContain('event.stop?.()')
         ->toContain('if (event.placeId)')
         ->toContain('new Place({ id: event.placeId })')
+        ->toContain('await this.reverseGeocodeCoordinates(event.latLng.lat(), event.latLng.lng())')
+        ->toContain('normalizeGeocodedLocation(result, latitude, longitude, metadata)')
+        ->toContain('name: null')
+        ->toContain('this.clearAddressAtCoordinates(latitude, longitude)')
         ->toContain("fields: ['id', 'displayName', 'formattedAddress', 'location', 'addressComponents']")
+        ->toContain("marker.addListener('dragend', async ()")
+        ->toContain('await this.reverseGeocodeCoordinates(Number(latitude), Number(longitude))')
         ->not->toContain('console.info')
         ->not->toContain('console.warn')
         ->toContain('gmpDraggable: true')
-        ->toContain("map.addListener('click'")
-        ->toContain("marker.addListener('dragend'");
+        ->toContain("map.addListener('click'");
 });

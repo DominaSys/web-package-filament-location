@@ -77,6 +77,33 @@ function normalizePlace(place, predictionText, metadata) {
     }
 }
 
+function normalizeGeocodedLocation(result, latitude, longitude, metadata) {
+    const components = result.address_components ?? []
+
+    return {
+        place_id: result.place_id ?? null,
+        name: null,
+        formatted_address: result.formatted_address ?? null,
+        latitude,
+        longitude,
+        postal_code: componentValue(components, 'postal_code'),
+        country: componentValue(components, 'country'),
+        country_code: componentValue(components, 'country', true),
+        state: componentValue(components, 'administrative_area_level_1'),
+        state_code: componentValue(components, 'administrative_area_level_1', true),
+        city: componentValue(components, 'administrative_area_level_2')
+            ?? componentValue(components, 'locality')
+            ?? componentValue(components, 'postal_town'),
+        city_code: null,
+        neighborhood: componentValue(components, 'sublocality_level_1')
+            ?? componentValue(components, 'neighborhood'),
+        street: componentValue(components, 'route'),
+        number: componentValue(components, 'street_number'),
+        source: metadata.pin_source,
+        precision: metadata.pin_precision,
+    }
+}
+
 export default function googlePlacePicker({
     apiKey,
     language,
@@ -92,6 +119,7 @@ export default function googlePlacePicker({
 }) {
     return {
         error: null,
+        geocoder: null,
         map: null,
         marker: null,
         initialized: false,
@@ -142,11 +170,13 @@ export default function googlePlacePicker({
                 }
 
                 const googleMaps = await loadGoogleMaps(apiKey, language, region)
-                const [{ Map }, { AdvancedMarkerElement, CollisionBehavior }, { Place, PlaceAutocompleteElement }] = await Promise.all([
+                const [{ Map }, { AdvancedMarkerElement, CollisionBehavior }, { Place, PlaceAutocompleteElement }, { Geocoder }] = await Promise.all([
                     googleMaps.importLibrary('maps'),
                     googleMaps.importLibrary('marker'),
                     googleMaps.importLibrary('places'),
+                    googleMaps.importLibrary('geocoding'),
                 ])
+                this.geocoder = new Geocoder()
 
                 const latitude = Number(initialLatitude)
                 const longitude = Number(initialLongitude)
@@ -180,12 +210,12 @@ export default function googlePlacePicker({
                     marker.map = map
                 }
 
-                marker.addListener('dragend', () => {
+                marker.addListener('dragend', async () => {
                     const position = marker.position
                     const latitude = typeof position.lat === 'function' ? position.lat() : position.lat
                     const longitude = typeof position.lng === 'function' ? position.lng() : position.lng
 
-                    this.updateCoordinates(Number(latitude), Number(longitude))
+                    await this.reverseGeocodeCoordinates(Number(latitude), Number(longitude))
                 })
 
                 map.addListener('click', async (event) => {
@@ -203,7 +233,7 @@ export default function googlePlacePicker({
 
                     marker.map = map
                     marker.position = event.latLng
-                    this.updateCoordinates(event.latLng.lat(), event.latLng.lng())
+                    await this.reverseGeocodeCoordinates(event.latLng.lat(), event.latLng.lng())
                 })
 
                 const autocomplete = new PlaceAutocompleteElement({
@@ -263,6 +293,46 @@ export default function googlePlacePicker({
                 console.error('[filament-location] place-selection:error', error)
                 this.error = error instanceof Error ? error.message : 'Não foi possível carregar o endereço selecionado.'
             }
+        },
+
+        async reverseGeocodeCoordinates(latitude, longitude) {
+            try {
+                const response = await raw(this.geocoder).geocode({
+                    location: { lat: latitude, lng: longitude },
+                })
+                const result = response.results?.[0]
+
+                if (!result) {
+                    throw new Error('Não foi possível encontrar um endereço para o ponto selecionado.')
+                }
+
+                const data = normalizeGeocodedLocation(result, latitude, longitude, metadata)
+
+                Object.entries(bindings).forEach(([key, path]) => {
+                    this.$wire.set(path, data[key] ?? null, false)
+                })
+
+                await this.$wire.set(statePath, data, true)
+                this.error = null
+                this.$root.dispatchEvent(new CustomEvent('filament-location:pin-moved', {
+                    bubbles: true,
+                    detail: data,
+                }))
+            } catch (error) {
+                console.error('[filament-location] reverse-geocoding:error', error)
+                this.error = error instanceof Error ? error.message : 'Não foi possível carregar o endereço selecionado.'
+                this.clearAddressAtCoordinates(latitude, longitude)
+            }
+        },
+
+        clearAddressAtCoordinates(latitude, longitude) {
+            const data = normalizeGeocodedLocation({}, latitude, longitude, metadata)
+
+            Object.entries(bindings).forEach(([key, path]) => {
+                this.$wire.set(path, data[key] ?? null, false)
+            })
+
+            this.$wire.set(statePath, data, true)
         },
 
         updateCoordinates(latitude, longitude) {
