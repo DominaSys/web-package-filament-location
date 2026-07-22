@@ -1,0 +1,42 @@
+.fi-fo-google-place-autocomplete {
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    border-radius: inherit;
+    background: transparent;
+    color: inherit;
+    color-scheme: light;
+    font: inherit;
+}
+
+.dark .fi-fo-google-place-autocomplete {
+    color-scheme: dark;
+}
+
+.fi-fo-google-place-autocomplete::part(input) {
+    min-height: 2.25rem;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    outline: none;
+}
+
+.fi-fo-google-place-autocomplete::part(focus-ring) {
+    border: 0;
+    outline: none;
+}
+
+.fi-fo-google-place-autocomplete::part(prediction-list) {
+    border-color: var(--color-gray-200);
+    border-radius: var(--radius-lg);
+    background: var(--color-white);
+    color: var(--color-gray-950);
+    font: inherit;
+}
+
+.dark .fi-fo-google-place-autocomplete::part(prediction-list) {
+    border-color: color-mix(in oklab, var(--color-white) 10%, transparent);
+    background: var(--color-gray-900);
+    color: var(--color-white);
+}

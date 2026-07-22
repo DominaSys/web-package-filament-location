@@ -101,7 +101,20 @@ it('resolves bound paths in the current form scope and renders the lazy asset', 
 
     expect($picker->toHtml())
         ->toContain('x-load-src=')
+        ->toContain('x-load-css=')
+        ->toContain('fi-input-wrp')
         ->toContain('browser-key')
         ->toContain('map-id')
         ->not->toContain('server-secret');
+});
+
+it('renders an explicit draggable pin and supports positioning it from the map', function () {
+    $component = file_get_contents(__DIR__ . '/../../resources/js/dist/components/google-place-picker.js');
+
+    expect($component)
+        ->toContain('PinElement')
+        ->toContain('content: pin')
+        ->toContain('gmpDraggable: true')
+        ->toContain("this.map.addListener('click'")
+        ->toContain("this.marker.addListener('dragend'");
 });

@@ -10,6 +10,7 @@
         wire:ignore
         x-load
         x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('google-place-picker', package: 'dominasys/filament-location') }}"
+        x-load-css="[@js(\Filament\Support\Facades\FilamentAsset::getStyleHref('google-place-picker', package: 'dominasys/filament-location'))]"
         x-data="googlePlacePicker({
             apiKey: @js(config('location.google.browser_key')),
             language: @js(config('location.google.language', 'pt-BR')),
@@ -25,7 +26,12 @@
         })"
         class="fi-fo-google-place-picker space-y-3"
     >
-        <div x-ref="autocomplete" class="min-h-10"></div>
+        <x-filament::input.wrapper
+            class="fi-fo-google-place-picker-search"
+            x-on:focus-input.stop="$el.querySelector('input')?.focus()"
+        >
+            <div x-ref="autocomplete" class="w-full"></div>
+        </x-filament::input.wrapper>
 
         <div
             x-ref="map"

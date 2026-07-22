@@ -13,6 +13,7 @@ use Dominasys\FilamentLocation\Services\GoogleReverseGeocodingService;
 use Dominasys\FilamentLocation\Services\JsonAddressDataRepository;
 use Dominasys\FilamentLocation\Testing\TestsFilamentLocation;
 use Filament\Support\Assets\AlpineComponent;
+use Filament\Support\Assets\Css;
 use Filament\Support\Facades\FilamentAsset;
 use Livewire\Features\SupportTesting\Testable;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
@@ -60,6 +61,10 @@ class FilamentLocationServiceProvider extends PackageServiceProvider
                 'google-place-picker',
                 __DIR__ . '/../resources/js/dist/components/google-place-picker.js',
             ),
+            Css::make(
+                'google-place-picker',
+                __DIR__ . '/../resources/css/google-place-picker.css',
+            )->loadedOnRequest(),
         ], package: 'dominasys/filament-location');
 
         // Testing

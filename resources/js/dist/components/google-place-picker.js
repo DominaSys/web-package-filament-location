@@ -138,7 +138,7 @@ export default function googlePlacePicker({
                 }
 
                 const googleMaps = await loadGoogleMaps(apiKey, language, region)
-                const [{ Map }, { AdvancedMarkerElement }, { PlaceAutocompleteElement }] = await Promise.all([
+                const [{ Map }, { AdvancedMarkerElement, PinElement }, { PlaceAutocompleteElement }] = await Promise.all([
                     googleMaps.importLibrary('maps'),
                     googleMaps.importLibrary('marker'),
                     googleMaps.importLibrary('places'),
@@ -157,10 +157,16 @@ export default function googlePlacePicker({
                     mapTypeControl: false,
                 })
 
+                const pin = new PinElement({
+                    scale: 1.1,
+                })
+
                 this.marker = new AdvancedMarkerElement({
                     map: this.map,
                     position: center,
+                    content: pin,
                     gmpDraggable: true,
+                    title: 'Arraste o pin ou clique no mapa para ajustar o ponto',
                 })
 
                 this.marker.addListener('dragend', () => {
@@ -171,11 +177,21 @@ export default function googlePlacePicker({
                     this.updateCoordinates(Number(latitude), Number(longitude))
                 })
 
+                this.map.addListener('click', (event) => {
+                    if (!event.latLng) {
+                        return
+                    }
+
+                    this.marker.position = event.latLng
+                    this.updateCoordinates(event.latLng.lat(), event.latLng.lng())
+                })
+
                 const autocomplete = new PlaceAutocompleteElement({
                     includedRegionCodes: region ? [region.toLowerCase()] : undefined,
                 })
 
                 autocomplete.placeholder = placeholder
+                autocomplete.classList.add('fi-fo-google-place-autocomplete')
                 autocomplete.addEventListener('gmp-select', (event) => this.selectPrediction(event.placePrediction))
                 autocomplete.addEventListener('gmp-placeselect', (event) => this.selectPrediction(event.placePrediction))
                 this.$refs.autocomplete.replaceChildren(autocomplete)
