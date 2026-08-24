@@ -27,6 +27,8 @@ class GooglePlacePicker extends Field
 
     protected string | Closure $pinPrecision = 'user_selected';
 
+    protected bool | Closure $storeSelectionState = true;
+
     /**
      * @var array<string, string>
      */
@@ -114,6 +116,18 @@ class GooglePlacePicker extends Field
         $this->pinPrecision = $precision;
 
         return $this;
+    }
+
+    public function storeSelectionState(bool | Closure $condition = true): static
+    {
+        $this->storeSelectionState = $condition;
+
+        return $this;
+    }
+
+    public function shouldStoreSelectionState(): bool
+    {
+        return (bool) $this->evaluate($this->storeSelectionState);
     }
 
     public function bindNameField(string $field): static

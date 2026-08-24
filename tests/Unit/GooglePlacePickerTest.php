@@ -1,6 +1,8 @@
 <?php
 
 use Dominasys\FilamentLocation\Forms\Components\GooglePlacePicker;
+use Dominasys\FilamentLocation\Support\Assets\ContentVersionedAlpineComponent;
+use Dominasys\FilamentLocation\Support\Assets\ContentVersionedCss;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
@@ -32,6 +34,16 @@ it('enables google only with the feature flag and browser key', function () {
         ->and(GooglePlacePicker::make('location_picker')->googleEnabled(false)->isGoogleEnabled())->toBeFalse();
 });
 
+it('versions lazy assets from their contents', function () {
+    $javascriptPath = __DIR__ . '/../../resources/js/dist/components/google-place-picker.js';
+    $cssPath = __DIR__ . '/../../resources/css/google-place-picker.css';
+
+    expect(ContentVersionedAlpineComponent::make('google-place-picker', $javascriptPath)->getVersion())
+        ->toBe(hash_file('sha256', $javascriptPath))
+        ->and(ContentVersionedCss::make('google-place-picker', $cssPath)->getVersion())
+        ->toBe(hash_file('sha256', $cssPath));
+});
+
 it('keeps bindings opt in and configurable without changing postal code', function () {
     $picker = GooglePlacePicker::make('location_picker')
         ->bindNameField('venue_name')
@@ -58,7 +70,8 @@ it('keeps bindings opt in and configurable without changing postal code', functi
             'pin_source' => 'manual',
             'place_precision' => 'aproximada',
             'pin_precision' => 'exata',
-        ]);
+        ])
+        ->and($picker->storeSelectionState(false)->shouldStoreSelectionState())->toBeFalse();
 });
 
 it('resolves bound paths in the current form scope and renders the lazy asset', function () {
@@ -103,6 +116,13 @@ it('resolves bound paths in the current form scope and renders the lazy asset', 
         ->toContain('x-load-src=')
         ->toContain('x-load-css=')
         ->toContain('fi-input-wrp')
+        ->toContain('Buscando locais…')
+        ->toContain('Nenhum local encontrado. Tente informar mais detalhes.')
+        ->toContain('aria-label="Sugestões de locais"')
+        ->toContain('x-bind:disabled="isSelecting"')
+        ->toContain('x-bind:aria-busy="isSelecting"')
+        ->toContain('Carregando local no mapa…')
+        ->toContain('fi-loading-indicator')
         ->toContain('browser-key')
         ->toContain('map-id')
         ->not->toContain('server-secret');
@@ -117,6 +137,32 @@ it('renders an explicit draggable pin and supports positioning it from the map',
         ->toContain('window.Alpine.raw(value)')
         ->toContain('const map = new Map')
         ->toContain("googleMaps.importLibrary('geocoding')")
+        ->toContain('this.autocompleteSuggestion.fetchAutocompleteSuggestions')
+        ->toContain('const predictionsByPlaceId = new Map()')
+        ->toContain('predictionsByPlaceId.set(prediction.placeId, prediction)')
+        ->toContain('mainText: prediction.mainText?.text')
+        ->toContain('predictionsByPlaceId.get(suggestion?.placeId)')
+        ->toContain('await this.selectPlace(prediction.toPlace(), suggestion.mainText || null)')
+        ->toContain('const displayName = place.displayName?.text ?? place.displayName ?? null')
+        ->toContain('name: predictionText || displayName')
+        ->toContain('window.Livewire.find(livewireId)')
+        ->toContain('await wire.$set(statePath, data, false)')
+        ->toContain('await wire.$set(path, data[key] ?? null, false)')
+        ->toContain('this.syncBoundInputs(data)')
+        ->toContain('input.value = data[key] ??')
+        ->not->toContain('this.$wire.set(')
+        ->toContain('this.isSelecting = true')
+        ->toContain('this.isSelecting = false')
+        ->toContain('const root = this.$root')
+        ->toContain("this.dispatchLocationEvent(root, 'filament-location:place-selected', data)")
+        ->toContain("this.dispatchLocationEvent(root, 'filament-location:pin-moved', data)")
+        ->toContain('if (!root?.isConnected)')
+        ->toContain('root.dispatchEvent(new CustomEvent(name')
+        ->not->toContain('this.$root.dispatchEvent')
+        ->toContain('new this.autocompleteSessionTokenClass()')
+        ->toContain('input.length < 3')
+        ->toContain('requestId !== this.latestAutocompleteRequest')
+        ->toContain("this.error = 'Não foi possível buscar locais agora. Tente novamente.'")
         ->toContain('this.geocoder = new Geocoder()')
         ->toContain('const marker = new AdvancedMarkerElement')
         ->toContain('if (hasCoordinates)')
@@ -128,8 +174,10 @@ it('renders an explicit draggable pin and supports positioning it from the map',
         ->toContain('new Place({ id: event.placeId })')
         ->toContain('await this.reverseGeocodeCoordinates(event.latLng.lat(), event.latLng.lng())')
         ->toContain('normalizeGeocodedLocation(result, latitude, longitude, metadata)')
+        ->toContain('await this.syncLocationData(root, data)')
+        ->toContain('if (statePath)')
         ->toContain('name: null')
-        ->toContain('this.clearAddressAtCoordinates(latitude, longitude)')
+        ->toContain('await this.clearAddressAtCoordinates(root, latitude, longitude)')
         ->toContain("fields: ['id', 'displayName', 'formattedAddress', 'location', 'addressComponents']")
         ->toContain("marker.addListener('dragend', async ()")
         ->toContain('await this.reverseGeocodeCoordinates(Number(latitude), Number(longitude))')

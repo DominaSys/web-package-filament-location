@@ -52,10 +52,11 @@ function raw(value) {
 
 function normalizePlace(place, predictionText, metadata) {
     const components = place.addressComponents ?? []
+    const displayName = place.displayName?.text ?? place.displayName ?? null
 
     return {
         place_id: place.id ?? null,
-        name: predictionText || place.displayName || null,
+        name: predictionText || displayName,
         formatted_address: place.formattedAddress ?? null,
         latitude: place.location?.lat() ?? null,
         longitude: place.location?.lng() ?? null,
@@ -117,11 +118,23 @@ export default function googlePlacePicker({
     zoom,
     metadata,
 }) {
+    const predictionsByPlaceId = new Map()
+
     return {
         error: null,
         geocoder: null,
         map: null,
         marker: null,
+        placeholder,
+        query: '',
+        suggestions: [],
+        isSearching: false,
+        isSelecting: false,
+        hasSearched: false,
+        autocompleteSuggestion: null,
+        autocompleteSessionToken: null,
+        autocompleteSessionTokenClass: null,
+        latestAutocompleteRequest: 0,
         initialized: false,
         visibilityObserver: null,
         intersectionObserver: null,
@@ -170,13 +183,16 @@ export default function googlePlacePicker({
                 }
 
                 const googleMaps = await loadGoogleMaps(apiKey, language, region)
-                const [{ Map }, { AdvancedMarkerElement, CollisionBehavior }, { Place, PlaceAutocompleteElement }, { Geocoder }] = await Promise.all([
+                const [{ Map }, { AdvancedMarkerElement, CollisionBehavior }, { Place, AutocompleteSuggestion, AutocompleteSessionToken }, { Geocoder }] = await Promise.all([
                     googleMaps.importLibrary('maps'),
                     googleMaps.importLibrary('marker'),
                     googleMaps.importLibrary('places'),
                     googleMaps.importLibrary('geocoding'),
                 ])
                 this.geocoder = new Geocoder()
+                this.autocompleteSuggestion = AutocompleteSuggestion
+                this.autocompleteSessionTokenClass = AutocompleteSessionToken
+                this.refreshAutocompleteSession()
 
                 const latitude = Number(initialLatitude)
                 const longitude = Number(initialLongitude)
@@ -236,19 +252,99 @@ export default function googlePlacePicker({
                     await this.reverseGeocodeCoordinates(event.latLng.lat(), event.latLng.lng())
                 })
 
-                const autocomplete = new PlaceAutocompleteElement({
-                    includedRegionCodes: region ? [region.toLowerCase()] : undefined,
-                })
-
-                autocomplete.placeholder = placeholder
-                autocomplete.classList.add('fi-fo-google-place-autocomplete')
-                autocomplete.addEventListener('gmp-select', (event) => this.selectPrediction(event.placePrediction))
-                autocomplete.addEventListener('gmp-placeselect', (event) => this.selectPrediction(event.placePrediction))
-                this.$refs.autocomplete.replaceChildren(autocomplete)
             } catch (error) {
                 console.error('[filament-location] initialization:error', error)
                 this.error = error instanceof Error ? error.message : 'Não foi possível inicializar o Google Maps.'
             }
+        },
+
+        refreshAutocompleteSession() {
+            this.autocompleteSessionToken = this.autocompleteSessionTokenClass
+                ? new this.autocompleteSessionTokenClass()
+                : null
+        },
+
+        async searchPlaces() {
+            const input = this.query.trim()
+            const requestId = ++this.latestAutocompleteRequest
+
+            if (input.length < 3) {
+                this.suggestions = []
+                this.isSearching = false
+                this.hasSearched = false
+
+                return
+            }
+
+            this.isSearching = true
+            this.hasSearched = false
+
+            try {
+                const { suggestions } = await this.autocompleteSuggestion.fetchAutocompleteSuggestions({
+                    input,
+                    includedRegionCodes: region ? [region.toLowerCase()] : undefined,
+                    language,
+                    region,
+                    sessionToken: this.autocompleteSessionToken,
+                })
+
+                if (requestId !== this.latestAutocompleteRequest) {
+                    return
+                }
+
+                predictionsByPlaceId.clear()
+                this.suggestions = suggestions.flatMap((suggestion) => {
+                    const prediction = suggestion.placePrediction
+
+                    if (!prediction) {
+                        return []
+                    }
+
+                    predictionsByPlaceId.set(prediction.placeId, prediction)
+
+                    return [{
+                        placeId: prediction.placeId,
+                        mainText: prediction.mainText?.text ?? prediction.text?.text ?? '',
+                        secondaryText: prediction.secondaryText?.text ?? '',
+                    }]
+                })
+                this.hasSearched = true
+                this.error = null
+            } catch (error) {
+                if (requestId !== this.latestAutocompleteRequest) {
+                    return
+                }
+
+                console.error('[filament-location] autocomplete:error', error)
+                this.suggestions = []
+                this.hasSearched = true
+                this.error = 'Não foi possível buscar locais agora. Tente novamente.'
+            } finally {
+                if (requestId === this.latestAutocompleteRequest) {
+                    this.isSearching = false
+                }
+            }
+        },
+
+        async selectSuggestion(suggestion) {
+            const prediction = predictionsByPlaceId.get(suggestion?.placeId)
+
+            if (!prediction || this.isSelecting) {
+                return
+            }
+
+            this.query = suggestion.mainText || this.query
+            this.clearSuggestions()
+            await this.selectPlace(prediction.toPlace(), suggestion.mainText || null)
+            this.refreshAutocompleteSession()
+        },
+
+        clearSuggestions() {
+            this.latestAutocompleteRequest++
+            predictionsByPlaceId.clear()
+            this.suggestions = []
+            this.isSearching = false
+            this.hasSearched = false
         },
 
         async selectPrediction(prediction) {
@@ -263,18 +359,16 @@ export default function googlePlacePicker({
         },
 
         async selectPlace(place, predictionText = null) {
+            const root = this.$root
+            this.isSelecting = true
+
             try {
                 await place.fetchFields({
                     fields: ['id', 'displayName', 'formattedAddress', 'location', 'addressComponents'],
                 })
 
                 const data = normalizePlace(place, predictionText, metadata)
-
-                Object.entries(bindings).forEach(([key, path]) => {
-                    this.$wire.set(path, data[key] ?? null, false)
-                })
-
-                await this.$wire.set(statePath, data, true)
+                await this.syncLocationData(root, data)
 
                 const position = { lat: data.latitude, lng: data.longitude }
                 const map = raw(this.map)
@@ -285,17 +379,34 @@ export default function googlePlacePicker({
                 map.setCenter(position)
                 map.setZoom(zoom)
                 this.error = null
-                this.$root.dispatchEvent(new CustomEvent('filament-location:place-selected', {
-                    bubbles: true,
-                    detail: data,
-                }))
+                this.dispatchLocationEvent(root, 'filament-location:place-selected', data)
             } catch (error) {
                 console.error('[filament-location] place-selection:error', error)
                 this.error = error instanceof Error ? error.message : 'Não foi possível carregar o endereço selecionado.'
+            } finally {
+                this.isSelecting = false
             }
         },
 
+        syncBoundInputs(data) {
+            const livewireRoot = this.$root?.closest('[wire\\:id]')
+
+            if (!livewireRoot) {
+                return
+            }
+
+            Object.entries(bindings).forEach(([key, path]) => {
+                const input = livewireRoot.querySelector(`[wire\\:model="${CSS.escape(path)}"]`)
+
+                if (input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement) {
+                    input.value = data[key] ?? ''
+                }
+            })
+        },
+
         async reverseGeocodeCoordinates(latitude, longitude) {
+            const root = this.$root
+
             try {
                 const response = await raw(this.geocoder).geocode({
                     location: { lat: latitude, lng: longitude },
@@ -307,35 +418,44 @@ export default function googlePlacePicker({
                 }
 
                 const data = normalizeGeocodedLocation(result, latitude, longitude, metadata)
-
-                Object.entries(bindings).forEach(([key, path]) => {
-                    this.$wire.set(path, data[key] ?? null, false)
-                })
-
-                await this.$wire.set(statePath, data, true)
+                await this.syncLocationData(root, data)
                 this.error = null
-                this.$root.dispatchEvent(new CustomEvent('filament-location:pin-moved', {
-                    bubbles: true,
-                    detail: data,
-                }))
+                this.dispatchLocationEvent(root, 'filament-location:pin-moved', data)
             } catch (error) {
                 console.error('[filament-location] reverse-geocoding:error', error)
                 this.error = error instanceof Error ? error.message : 'Não foi possível carregar o endereço selecionado.'
-                this.clearAddressAtCoordinates(latitude, longitude)
+                await this.clearAddressAtCoordinates(root, latitude, longitude)
             }
         },
 
-        clearAddressAtCoordinates(latitude, longitude) {
+        async clearAddressAtCoordinates(root, latitude, longitude) {
             const data = normalizeGeocodedLocation({}, latitude, longitude, metadata)
 
-            Object.entries(bindings).forEach(([key, path]) => {
-                this.$wire.set(path, data[key] ?? null, false)
-            })
+            await this.syncLocationData(root, data)
+            this.dispatchLocationEvent(root, 'filament-location:pin-moved', data)
+        },
 
-            this.$wire.set(statePath, data, true)
+        async syncLocationData(root, data) {
+            const livewireId = root?.closest('[wire\\:id]')?.getAttribute('wire:id')
+            const wire = livewireId ? window.Livewire.find(livewireId) : null
+
+            if (!wire) {
+                throw new Error('Não foi possível sincronizar o endereço com o formulário.')
+            }
+
+            for (const [key, path] of Object.entries(bindings)) {
+                await wire.$set(path, data[key] ?? null, false)
+            }
+
+            if (statePath) {
+                await wire.$set(statePath, data, false)
+            }
+
+            this.syncBoundInputs(data)
         },
 
         updateCoordinates(latitude, longitude) {
+            const root = this.$root
             const data = {
                 latitude,
                 longitude,
@@ -343,13 +463,21 @@ export default function googlePlacePicker({
                 precision: metadata.pin_precision,
             }
 
-            this.$wire.set(bindings.latitude, latitude, false)
-            this.$wire.set(bindings.longitude, longitude, false)
-            this.$wire.set(bindings.source, data.source, false)
-            this.$wire.set(bindings.precision, data.precision, true)
-            this.$root.dispatchEvent(new CustomEvent('filament-location:pin-moved', {
+            this.$wire.$set(bindings.latitude, latitude, false)
+            this.$wire.$set(bindings.longitude, longitude, false)
+            this.$wire.$set(bindings.source, data.source, false)
+            this.$wire.$set(bindings.precision, data.precision, true)
+            this.dispatchLocationEvent(root, 'filament-location:pin-moved', data)
+        },
+
+        dispatchLocationEvent(root, name, detail) {
+            if (!root?.isConnected) {
+                return
+            }
+
+            root.dispatchEvent(new CustomEvent(name, {
                 bubbles: true,
-                detail: data,
+                detail,
             }))
         },
     }

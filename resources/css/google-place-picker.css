@@ -40,3 +40,98 @@
     background: var(--color-gray-900);
     color: var(--color-white);
 }
+
+.fi-fo-google-place-picker-input {
+    width: 100%;
+    min-height: 2.25rem;
+    border: 0;
+    background: transparent;
+    padding: 0 0.75rem;
+    color: inherit;
+    font: inherit;
+    outline: none;
+}
+
+.fi-fo-google-place-picker-results {
+    max-height: min(18rem, 40dvh);
+    overflow: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-lg);
+    background: var(--color-white);
+}
+.fi-fo-google-place-picker-map-container {
+    position: relative;
+}
+.fi-fo-google-place-picker-map-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    border-radius: var(--radius-lg);
+    background: color-mix(in oklab, var(--color-white) 82%, transparent);
+    color: var(--color-gray-700);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+}
+
+.fi-fo-google-place-picker-status {
+    padding: 0.75rem;
+    color: var(--color-gray-500);
+    font-size: var(--text-sm);
+}
+
+.fi-fo-google-place-picker-result {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    gap: 0.125rem;
+    border: 0;
+    border-bottom: 1px solid var(--color-gray-100);
+    background: transparent;
+    padding: 0.625rem 0.75rem;
+    text-align: start;
+}
+
+.fi-fo-google-place-picker-result:last-child {
+    border-bottom: 0;
+}
+
+.fi-fo-google-place-picker-result:hover,
+.fi-fo-google-place-picker-result:focus-visible {
+    background: var(--color-gray-50);
+    outline: none;
+}
+
+.fi-fo-google-place-picker-result-detail {
+    color: var(--color-gray-500);
+    font-size: var(--text-sm);
+}
+
+.dark .fi-fo-google-place-picker-results {
+    border-color: color-mix(in oklab, var(--color-white) 10%, transparent);
+    background: var(--color-gray-900);
+}
+.dark .fi-fo-google-place-picker-map-loading {
+    background: color-mix(in oklab, var(--color-gray-950) 82%, transparent);
+    color: var(--color-gray-200);
+}
+@media (max-width: 40rem) {
+    .fi-fo-google-place-picker-results {
+        max-height: min(14rem, 32dvh);
+    }
+}
+
+.dark .fi-fo-google-place-picker-result {
+    border-color: color-mix(in oklab, var(--color-white) 10%, transparent);
+}
+
+.dark .fi-fo-google-place-picker-result:hover,
+.dark .fi-fo-google-place-picker-result:focus-visible {
+    background: var(--color-gray-800);
+}
